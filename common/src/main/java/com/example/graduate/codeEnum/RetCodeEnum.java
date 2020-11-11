@@ -34,7 +34,8 @@ public enum RetCodeEnum {
 
     AUDIT_DEV_IP_EXIST("900009", "该设备所设置的IP地址已经存在,不能重复"),
 
-    AUDIT_OBJECT_CONSTRAINT_OK("900010", "审核对象合法");
+    AUDIT_OBJECT_CONSTRAINT_OK("900010", "审核对象合法"),
+    PSW_WRONG("900011","密码错误");
 
     private String code;
     private String tip;

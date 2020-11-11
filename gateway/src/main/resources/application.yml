@@ -18,3 +18,7 @@ swagger:
   description: API接口文档信息
   # swagger的开关(线上环境直接关闭swagger的访问权限即可)
   enable: true
+# 配置slq打印日志
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

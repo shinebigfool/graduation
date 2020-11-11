@@ -21,4 +21,5 @@ public interface UserConverter {
     @Mappings({})
     List<UserDTO> domain2dto(List<User> list);
     UserDTO domain2dto(User user);
+    User dto2domain(UserDTO userDTO);
 }
