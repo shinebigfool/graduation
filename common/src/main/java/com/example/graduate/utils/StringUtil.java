@@ -2,7 +2,7 @@ package com.example.graduate.utils;
 
 public class StringUtil {
     /**
-     * 将字符串转换为int型整数。
+     * 字符串转为int
      *
      * @param str 目标字符串
      * @return int
@@ -15,7 +15,7 @@ public class StringUtil {
         }
     }
     /**
-     *
+     * object转int
      *
      * @param object
      * @return int
@@ -24,8 +24,8 @@ public class StringUtil {
         return ch2Int(parseString(object));
     }
     /**
-     * 处理字符串
-     * 
+     * 处理字符串""/toString().trim()
+     *  object转string
      * @param arg0
      * @return 若obj为空(null)则返回"",否则返回obj转换成字符串且除去该字符前后空格之后的值
      */

@@ -1,5 +1,6 @@
 package com.example.graduate.pojo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import javax.persistence.*;
@@ -16,14 +17,14 @@ public class AdminMenu {
 
     private String name;
 
-    private String namezh;
+    private String nameZh;
 
     private String iconcls;
 
     private String component;
 
-    private int parentid;
+    private int parentId;
 
-    @Transient
+    @TableField(exist = false)
     List<AdminMenu> children;
 }

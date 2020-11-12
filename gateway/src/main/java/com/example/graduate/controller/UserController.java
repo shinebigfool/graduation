@@ -30,8 +30,6 @@ import java.util.Map;
 @Api(value = "用户管理",tags = "UserController")
 public class UserController {
     @Autowired
-    private UserService userService;
-    @Autowired
     private UserServiceGateway userServiceGateway;
     @ApiOperation(value = "测试Swagger")
     @GetMapping("/test")
@@ -74,7 +72,7 @@ public class UserController {
     DTO modUser(@ApiIgnore @RequestBody UserDTO u){
 
         if(StringUtil.isBlank(u.getName())){
-            return new DTO(RetCodeEnum.PARAM_ERROR);
+            return new DTO(RetCodeEnum.PARAM_ERROR.getCode(),"非法账号");
         }
         userServiceGateway.modUser(u);
         return null;
