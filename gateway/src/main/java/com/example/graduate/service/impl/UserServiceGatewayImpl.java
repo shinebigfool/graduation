@@ -5,16 +5,19 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.DTO;
+import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.dto.UserDTO;
 import com.example.graduate.mapstruct.UserConverter;
 import com.example.graduate.pojo.AdminRole;
 import com.example.graduate.pojo.AdminUserRole;
 import com.example.graduate.pojo.User;
+import com.example.graduate.service.AdminRoleService;
 import com.example.graduate.service.AdminUserRoleService;
 import com.example.graduate.service.UserService;
 import com.example.graduate.service.UserServiceGateway;
 import com.example.graduate.utils.PageUtil;
+import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -39,6 +42,8 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
 
     @Autowired
     private AdminUserRoleService adminUserRoleService;
+    @Autowired
+    private AdminRoleService adminRoleService;
     public UserDTO qryUserByName(String name){
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         userQueryWrapper.lambda().eq(User::getName,name);
@@ -71,7 +76,7 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         pageDTO.setRetList(userDTOS);
         return pageDTO;
     }
-
+    // TODO 修改用户信息有问题
     @Override
     public DTO modUser(UserDTO u) {
         User user = UserConverter.INSTANCE.dto2domain(u);
@@ -134,5 +139,24 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         userQueryWrapper.lambda().eq(User::getName,name);
         User one = userService.getOne(userQueryWrapper);
         return one;
+    }
+
+    @Override
+    public ListDTO qryPresentUserRoles() {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if(StringUtil.isBlank(name)){
+            return new ListDTO(RetCodeEnum.FAIL.getCode(),"请先登录");
+        }
+        LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
+        userWrapper.eq(User::getName,name);
+        User one = userService.getOne(userWrapper);
+        LambdaQueryWrapper<AdminUserRole> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AdminUserRole::getUid,one.getId());
+        List<AdminUserRole> roles = adminUserRoleService.list(wrapper);
+        List<Integer> rids = roles.stream().map(AdminUserRole::getRid).collect(Collectors.toList());
+        List<AdminRole> roleNames = adminRoleService.listByIds(rids);
+        ListDTO listDTO = new ListDTO(RetCodeEnum.SUCCEED);
+        listDTO.setRetList(roleNames);
+        return listDTO;
     }
 }

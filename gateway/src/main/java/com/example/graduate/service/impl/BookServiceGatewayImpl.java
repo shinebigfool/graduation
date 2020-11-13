@@ -82,6 +82,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         return new DTO(RetCodeEnum.SUCCEED);
     }
 
+    // TODO 消息推送
     @Override
     public DTO examineBook(Book book) {
         bookService.updateById(book);

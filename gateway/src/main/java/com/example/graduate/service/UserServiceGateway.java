@@ -1,6 +1,7 @@
 package com.example.graduate.service;
 
 import com.example.graduate.dto.DTO;
+import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.dto.UserDTO;
 import com.example.graduate.pojo.User;
@@ -15,4 +16,5 @@ public interface UserServiceGateway {
     DTO login(String account, String password,boolean isRememberMe);
     DTO regist(UserDTO userDTO);
     User qryUserInDBByName(String name);
+    ListDTO qryPresentUserRoles();
 }

@@ -2,6 +2,7 @@ package com.example.graduate.controller;
 
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.DTO;
+import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.dto.UserDTO;
 import com.example.graduate.service.UserService;
@@ -85,9 +86,9 @@ public class UserController {
             @ApiImplicitParam(paramType = "query", name = "password", dataType = "String", required = true, value = "用户密码"),
             @ApiImplicitParam(paramType = "query",name = "isRememberMe",dataType = "boolean",required = true,value = "是否记住我")
     })
-    DTO login(@NotBlank(message = "用户名不能为空") String account,
-              @NotBlank(message = "密码不能为空")String password,
-              @NotBlank(message = "配置不能为空")boolean isRememberMe){
+    DTO login(@NotBlank(message = "用户名不能为空") @RequestParam("account") String account,
+              @NotBlank(message = "密码不能为空") @RequestParam("password") String password,
+              @NotBlank(message = "配置不能为空") @RequestParam("isRememberMe") boolean isRememberMe){
         return userServiceGateway.login(account,password,isRememberMe);
 
     }
@@ -97,5 +98,11 @@ public class UserController {
 //    @RequiresRoles(value = {"super", "admin","operations"}, logical = Logical.OR)
     DTO regist(@RequestBody UserDTO userDTO){
         return userServiceGateway.regist(userDTO);
+    }
+
+    @GetMapping("/role")
+    @ApiOperation(value = "查询当前登录用户的角色信息")
+    ListDTO qryPresentUserRoles(){
+        return userServiceGateway.qryPresentUserRoles();
     }
 }

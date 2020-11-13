@@ -104,10 +104,19 @@ public class ShiroConfig {
         return simpleCookie;
     }
 
-    public CookieRememberMeManager rememberMeManager() {
+//    public CookieRememberMeManager rememberMeManager() {
+//        CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
+//        cookieRememberMeManager.setCookie(rememberMeCookie());
+//        cookieRememberMeManager.setCipherKey("NIXINYAN".getBytes());
+//        return cookieRememberMeManager;
+//    }
+//    @Bean
+    public CookieRememberMeManager cookieRememberMeManager() {
         CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
-        cookieRememberMeManager.setCookie(rememberMeCookie());
-        cookieRememberMeManager.setCipherKey("NIXINYAN".getBytes());
+        SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
+        simpleCookie.setMaxAge(259200000);
+        cookieRememberMeManager.setCookie(simpleCookie);
+        cookieRememberMeManager.setCipherKey(Base64.decode("6ZmI6I2j5Y+R5aSn5ZOlAA=="));
         return cookieRememberMeManager;
     }
 
@@ -116,7 +125,7 @@ public class ShiroConfig {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
 
         securityManager.setRealm(getRealm());
-        securityManager.setRememberMeManager(rememberMeManager());
+        securityManager.setRememberMeManager(cookieRememberMeManager());
         return securityManager;
     }
 

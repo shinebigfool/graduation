@@ -22,13 +22,13 @@ public interface BookMapper extends BaseMapper<Book> {
             " <if test = 'author!=null and author!=\"\"'> " +
             " and author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
             "</if>" +
-            " <if test = 'cid!=null'> " +
+            " <if test = 'cid!=null and cid != -1'> " +
             " and cid = #{cid} " +
             "</if>" +
-            " <if test = 'examineState!=null'> " +
+            " <if test = 'examineState!=null and examineState != -1'> " +
             " and examineState = #{examineState} " +
             "</if>" +
-            " <if test = 'availableState!=null'> " +
+            " <if test = 'availableState!=null and availableState != -1'> " +
             " and availableState = #{availableState} " +
             "</if>" +
             " <if test = 'examinePerson!=null and author!=\"\"'> " +

@@ -19,7 +19,7 @@ public class BorrowLog {
     private Date borrowDate;
     private String userAccount;
     private int bookId;
-    private double totalTime;
+    private int totalTime;
     private String bookTitle;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date needReturnDate;
