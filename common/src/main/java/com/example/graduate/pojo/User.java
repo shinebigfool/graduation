@@ -38,6 +38,7 @@ public class User {
     private Date loginTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date registTime;
+    private String photoUrl;
 //
 //    @Transient
 //    private List<AdminRole> roles;

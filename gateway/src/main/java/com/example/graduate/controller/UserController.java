@@ -1,10 +1,7 @@
 package com.example.graduate.controller;
 
 import com.example.graduate.codeEnum.RetCodeEnum;
-import com.example.graduate.dto.DTO;
-import com.example.graduate.dto.ListDTO;
-import com.example.graduate.dto.PageDTO;
-import com.example.graduate.dto.UserDTO;
+import com.example.graduate.dto.*;
 import com.example.graduate.service.UserService;
 import com.example.graduate.service.UserServiceGateway;
 import com.example.graduate.utils.StringUtil;
@@ -12,8 +9,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -102,7 +102,15 @@ public class UserController {
 
     @GetMapping("/role")
     @ApiOperation(value = "查询当前登录用户的角色信息")
-    ListDTO qryPresentUserRoles(){
+    RoleDTO qryPresentUserRoles(){
         return userServiceGateway.qryPresentUserRoles();
+    }
+
+    @GetMapping("/logout")
+    @ApiOperation(value = "登出")
+    DTO logout(){
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
+        return new DTO(RetCodeEnum.SUCCEED);
     }
 }

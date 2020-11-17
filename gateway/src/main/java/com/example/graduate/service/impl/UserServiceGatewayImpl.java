@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
-import com.example.graduate.dto.DTO;
-import com.example.graduate.dto.ListDTO;
-import com.example.graduate.dto.PageDTO;
-import com.example.graduate.dto.UserDTO;
+import com.example.graduate.dto.*;
 import com.example.graduate.mapstruct.UserConverter;
 import com.example.graduate.pojo.AdminRole;
 import com.example.graduate.pojo.AdminUserRole;
@@ -142,21 +139,25 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     }
 
     @Override
-    public ListDTO qryPresentUserRoles() {
+    public RoleDTO qryPresentUserRoles() {
+        SecurityUtils.getSubject();
         String name = PresentUserUtils.qryPresentUserAccount();
         if(StringUtil.isBlank(name)){
-            return new ListDTO(RetCodeEnum.FAIL.getCode(),"请先登录");
+            return new RoleDTO(RetCodeEnum.FAIL.getCode(),"请先登录");
         }
         LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
         userWrapper.eq(User::getName,name);
         User one = userService.getOne(userWrapper);
         LambdaQueryWrapper<AdminUserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdminUserRole::getUid,one.getId());
-        List<AdminUserRole> roles = adminUserRoleService.list(wrapper);
-        List<Integer> rids = roles.stream().map(AdminUserRole::getRid).collect(Collectors.toList());
-        List<AdminRole> roleNames = adminRoleService.listByIds(rids);
-        ListDTO listDTO = new ListDTO(RetCodeEnum.SUCCEED);
-        listDTO.setRetList(roleNames);
-        return listDTO;
+        List<AdminUserRole> relations = adminUserRoleService.list(wrapper);
+        List<Integer> rids = relations.stream().map(AdminUserRole::getRid).collect(Collectors.toList());
+        List<AdminRole> roles = adminRoleService.listByIds(rids);
+        List<String> roleNames = roles.stream().map(AdminRole::getName).collect(Collectors.toList());
+        RoleDTO roleDTO = new RoleDTO(RetCodeEnum.SUCCEED);
+        roleDTO.setAvatar(one.getPhotoUrl());
+        roleDTO.setName(one.getUname());
+        roleDTO.setRoles(roleNames);
+        return roleDTO;
     }
 }
