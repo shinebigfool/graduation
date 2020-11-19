@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.PageDTO;
+import com.example.graduate.exception.NxyException;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.service.BookService;
@@ -58,28 +59,36 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     }
 
     @Override
-    public DTO saveBook(Book book) {
-        book.setInsertDate(new Date());
+    public DTO saveBook(Book book) throws NxyException {
         book.setExamineState(0);
         String name = SecurityUtils.getSubject().getPrincipal().toString();
         if(name==null||name.equals("")){
-            return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
+            throw new NxyException("请先登录");
         }
         book.setUploadPerson(name);
         book.setAvailableState(0);
+        book.setExaminePerson("");
+        book.setExamineNote("");
         try {
             bookService.save(book);
+            return new DTO(RetCodeEnum.SUCCEED.getCode(),StringUtil.parseString(book.getId()));
         }catch (Exception e){
-            return new DTO(RetCodeEnum.EXCEPTION.getCode(),e.getMessage());
+            throw new NxyException("新增图书失败");
         }
 
-        return new DTO(RetCodeEnum.SUCCEED);
+
     }
 
     @Override
-    public DTO delBookById(List<Integer> bids) {
-        bookService.removeByIds(bids);
-        return new DTO(RetCodeEnum.SUCCEED);
+    public DTO delBookById(List<Integer> bids) throws NxyException {
+        try {
+            bookService.removeByIds(bids);
+            return new DTO(RetCodeEnum.SUCCEED);
+        }catch (Exception e){
+            throw new NxyException("删除图书失败");
+        }
+
+
     }
 
     // TODO 消息推送

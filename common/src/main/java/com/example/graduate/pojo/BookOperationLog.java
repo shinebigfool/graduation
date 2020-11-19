@@ -23,8 +23,7 @@ public class BookOperationLog {
     private int bid;
     private String description;
 
-    public void setSuccessLog(Date createDate,String operationPerson,int status,int type,int bid,String description){
-        this.createDate = createDate;
+    public void setSuccessLog(String operationPerson,int status,int type,int bid,String description){
         this.operationPerson = operationPerson;
         this.status = status;
         this.type = type;

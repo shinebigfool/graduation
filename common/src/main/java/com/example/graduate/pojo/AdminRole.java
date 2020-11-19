@@ -1,6 +1,8 @@
 package com.example.graduate.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;
@@ -11,8 +13,7 @@ import java.util.List;
 
 @Data
 public class AdminRole {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private int id;
 
     private String name;

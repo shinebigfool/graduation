@@ -1,6 +1,8 @@
 package com.example.graduate.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import javax.persistence.*;
@@ -9,8 +11,7 @@ import java.util.List;
 @Data
 @TableName("admin_menu")
 public class AdminMenu {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private int id;
 
     private String path;

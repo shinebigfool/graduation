@@ -2,13 +2,18 @@ package com.example.graduate.aop;
 
 import com.example.graduate.annotation.OperationLogAnnotation;
 import com.example.graduate.codeEnum.RetCodeEnum;
+import com.example.graduate.dto.DTO;
+import com.example.graduate.exception.NxyException;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookOperationLog;
 import com.example.graduate.service.BookOperationLogService;
+import com.example.graduate.utils.PresentUserUtils;
+import com.example.graduate.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -36,8 +41,20 @@ public class BookOperateAop {
 
     @AfterReturning(value = "logPointcut()",returning = "rtv")
     public void doAfterReturning(JoinPoint joinPoint,Object rtv){
-        // TODO 获取当前用户信息
-        SecurityUtils.getSubject();
+        saveLog(joinPoint,rtv,1);
+
+    }
+    @AfterThrowing(value = "logPointcut()",throwing = "e")
+    public void doAfterThrowing(JoinPoint joinPoint,Throwable e){
+        saveLog(joinPoint,null,0);
+    }
+
+    private void saveLog(JoinPoint joinPoint,Object rtv,int status){
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if(StringUtil.isBlank(name)){
+            log.error("非法操作");
+            return;
+        }
         //通过反射获取织入点方法
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -54,7 +71,7 @@ public class BookOperateAop {
             List<BookOperationLog> logs = new ArrayList<>();
             for (Integer bid : bids) {
                 BookOperationLog log = new BookOperationLog();
-                log.setSuccessLog(new Date(),"bigfool",1,code,bid,description);
+                log.setSuccessLog(name,status,code,bid,description);
                 logs.add(log);
             }
             bookOperationLogService.saveBatch(logs);
@@ -64,10 +81,12 @@ public class BookOperateAop {
         if(code==1||code==2){
             Book book = (Book) joinPoint.getArgs()[0];
             BookOperationLog log = new BookOperationLog();
-            log.setSuccessLog(new Date(),"bigfool",1,code,book.getId(),description);
+            int id = book.getId();
+            if(code==1){
+                id = StringUtil.objectToInt(((DTO)rtv).getRetMsg());
+            }
+            log.setSuccessLog(name,status,code,id,description);
             bookOperationLogService.save(log);
         }
-
-
     }
 }

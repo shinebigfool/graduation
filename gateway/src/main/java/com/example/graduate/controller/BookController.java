@@ -5,16 +5,21 @@ import com.example.graduate.codeEnum.LogOperationType;
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.PageDTO;
+import com.example.graduate.exception.NxyException;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.service.BookServiceGateway;
+import com.example.graduate.utils.StringUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -46,18 +51,18 @@ public class BookController {
         return bookServiceGateway.qryBook(params);
     }
 
-    // TODO 待实现
+
     @DeleteMapping("/book")
     @ApiOperation(value = "删除图书")
     @OperationLogAnnotation(description = "删除图书",type = LogOperationType.DELETE)
-    DTO delBookById(@RequestParam List<Integer> bids){
+    DTO delBookById(@RequestParam List<Integer> bids) throws NxyException {
         return bookServiceGateway.delBookById(bids);
     }
 
     @PostMapping("/book")
     @ApiOperation(value = "新增图书(需要送审)")
     @OperationLogAnnotation(description = "新增图书",type = LogOperationType.ADD)
-    DTO saveBook(@RequestBody Book book){
+    DTO saveBook(@RequestBody Book book) throws NxyException {
         return bookServiceGateway.saveBook(book);
     }
 
@@ -69,4 +74,23 @@ public class BookController {
         return bookServiceGateway.examineBook(book);
     }
 
+    @PostMapping("/cover")
+    @ApiOperation(value = "上传图片")
+    DTO coversUpload(MultipartFile file){
+        String folder = "D:/pic";
+        File imageFolder = new File(folder);
+        File f = new File(imageFolder, StringUtil.getRandomString(6) + file.getOriginalFilename()
+                .substring(file.getOriginalFilename().length() - 4));
+        if (!f.getParentFile().exists())
+            f.getParentFile().mkdirs();
+        try {
+            file.transferTo(f);
+            String imgURL = "http://localhost:2048/api/file/" + f.getName();
+            System.out.println(imgURL);
+            return new DTO(RetCodeEnum.SUCCEED.getCode(),imgURL);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new DTO(RetCodeEnum.FAIL);
+        }
+    }
 }

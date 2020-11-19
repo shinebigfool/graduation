@@ -1,5 +1,7 @@
 package com.example.graduate.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -12,8 +14,7 @@ import java.util.Date;
 @Data
 @TableName("book")
 public class Book {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private int id;
     private String cover;
     private String title;

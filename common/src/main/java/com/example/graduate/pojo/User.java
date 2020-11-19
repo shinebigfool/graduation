@@ -1,5 +1,7 @@
 package com.example.graduate.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,8 +14,7 @@ import java.util.Date;
 
 @Data
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private int id;
 
     @NotBlank(message = "用户账号不能为空")
