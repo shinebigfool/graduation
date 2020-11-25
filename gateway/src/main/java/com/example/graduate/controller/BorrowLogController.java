@@ -2,6 +2,10 @@ package com.example.graduate.controller;
 
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
+import com.example.graduate.dto.PageDTO;
+import com.example.graduate.dto.PersonalBorrowInfoDTO;
+import com.example.graduate.pojo.BorrowLog;
+import com.example.graduate.pojo.BorrowLogDetail;
 import com.example.graduate.service.BorrowLogServiceGateway;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -50,5 +54,31 @@ public class BorrowLogController {
     })
     ListDTO qryBorrowLog(@ApiIgnore @RequestParam Map<String,Object> params){
         return borrowLogServiceGateway.qryBorrowLog(params);
+    }
+    @GetMapping("/page")
+    @ApiOperation("分页查询所有用户的借书日志")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "current",value = "当前页面",required = true,paramType = "query"),
+            @ApiImplicitParam(name = "size",value = "页面大小",required = true,paramType = "query"),
+            @ApiImplicitParam(name = "title",value = "图书标题(模糊)",paramType = "query",required = false),
+            @ApiImplicitParam(name = "author",value = "作者",required = false,paramType = "query"),
+            @ApiImplicitParam(name = "cid",value = "种类ID",required = false,paramType = "query"),
+            @ApiImplicitParam(name = "borrowState",value = "是否已归还",required = false,paramType = "query"),
+            @ApiImplicitParam(name = "uploadPerson",value = "上传者",required = false,paramType = "query"),
+            @ApiImplicitParam(name = "name",value = "借阅人",required = false,paramType = "query")
+    })
+    PageDTO<BorrowLogDetail> qryWholeLog(@ApiIgnore @RequestParam Map<String,Object> params){
+        return borrowLogServiceGateway.qryWholeLog(params);
+    }
+    /**
+     * 查询总借书量，近一个月借书量，未还书量，收藏夹图书，最近足迹
+     *
+     * @param
+     * @return com.example.graduate.dto.PersonalBorrowInfoDTO
+     */
+    @GetMapping("/count")
+    @ApiOperation("查询当前用户借书信息统计")
+    PersonalBorrowInfoDTO qryPersonalBorrowInfo(){
+        return borrowLogServiceGateway.qryPersonalBorrowInfo();
     }
 }

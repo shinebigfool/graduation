@@ -1,15 +1,21 @@
 package com.example.graduate.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
+import com.example.graduate.dto.PageDTO;
+import com.example.graduate.dto.PersonalBorrowInfoDTO;
 import com.example.graduate.pojo.Book;
+import com.example.graduate.pojo.BookFavorite;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
+import com.example.graduate.service.BookFavoriteService;
 import com.example.graduate.service.BookService;
 import com.example.graduate.service.BorrowLogService;
 import com.example.graduate.service.BorrowLogServiceGateway;
+import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
 import org.apache.shiro.SecurityUtils;
@@ -27,11 +33,13 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     private BookService bookService;
     @Autowired
     private BorrowLogService borrowLogService;
+    @Autowired
+    private BookFavoriteService bookFavoriteService;
     @Override
     public DTO lendBook(int bid) {
         // TODO 获取当前登录用户信息
         SecurityUtils.getSubject().getPrincipal();
-        String name = "bigfool";
+        String name = "test";
         if(StringUtil.isBlank(name)){
             return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
         }
@@ -90,5 +98,62 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
         ListDTO listDTO = new ListDTO(RetCodeEnum.SUCCEED);
         listDTO.setRetList(borrowLogDetails);
         return listDTO;
+    }
+
+    @Override
+    public PageDTO<BorrowLogDetail> qryWholeLog(Map<String, Object> params) {
+        PageDTO<BorrowLogDetail> pageDTO = new PageDTO<>(RetCodeEnum.SUCCEED);
+        int totalRow = borrowLogService.qryTotalRow(params);
+        params.put("totalRow",totalRow);
+        int size = PageUtil.transParam2Page(params,pageDTO);
+        int current = StringUtil.objectToInt(params.get("current"));
+        Page<BorrowLogDetail> borrowLogPage = new Page<>(current,size);
+        String title = StringUtil.parseString(params.get("title"));
+        String author = StringUtil.parseString(params.get("author"));
+        int cid = StringUtil.objectToInt(params.get("cid"));
+        int borrowState = StringUtil.objectToInt(params.get("borrowState"));
+        String uploadPerson = StringUtil.parseString(params.get("uploadPerson"));
+        String name = StringUtil.parseString(params.get("name"));
+        List<BorrowLogDetail> list = borrowLogService.qryLogPage(borrowLogPage, title,
+                author, cid, borrowState, uploadPerson, name);
+        if(list.size()==0){
+            return new PageDTO<>(RetCodeEnum.RESULT_EMPTY);
+        }
+        pageDTO.setRetList(list);
+        return pageDTO;
+    }
+
+    @Override
+    public PersonalBorrowInfoDTO qryPersonalBorrowInfo() {
+        PersonalBorrowInfoDTO dto = new PersonalBorrowInfoDTO(RetCodeEnum.SUCCEED);
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if(StringUtil.isBlank(name)){
+            return new PersonalBorrowInfoDTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
+        }
+        //借书日志里所有相关记录
+        LambdaQueryWrapper<BorrowLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BorrowLog::getUserAccount,name);
+        int bookTotal = borrowLogService.count(wrapper);
+        //借书日志里未还相关记录
+        wrapper.eq(BorrowLog::getState,2);
+        int bookInHand = borrowLogService.count(wrapper);
+        //借书日志近一个月记录
+        LambdaQueryWrapper<BorrowLog> newWrapper = new LambdaQueryWrapper<>();
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.DATE,-30);
+        newWrapper.eq(BorrowLog::getUserAccount,name).gt(BorrowLog::getBorrowDate,calendar.getTime());
+        int bookMonth = borrowLogService.count(newWrapper);
+        //收藏夹所有相关记录
+        LambdaQueryWrapper<BookFavorite> favoriteWrapper = new LambdaQueryWrapper<>();
+        favoriteWrapper.eq(BookFavorite::getUserAccount,name);
+        int bookFavorite = bookFavoriteService.count(favoriteWrapper);
+        //收藏夹排序，取最近几条图书信息
+        favoriteWrapper.orderByDesc(BookFavorite::getCreateTime);
+        BookFavorite favoriteRecent = bookFavoriteService.getOne(favoriteWrapper);
+        Book bookRecent = bookService.getById(favoriteRecent.getBookId());
+        dto.setResults(bookTotal,bookInHand,bookMonth,bookFavorite,bookRecent);
+        return dto;
     }
 }

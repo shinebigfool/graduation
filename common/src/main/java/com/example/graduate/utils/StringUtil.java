@@ -19,7 +19,7 @@ public class StringUtil {
     /**
      * object转int
      *
-     * @param object
+     * @param object 异常返回-1
      * @return int
      */
     public static int objectToInt(Object object) {

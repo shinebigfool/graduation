@@ -12,6 +12,7 @@ import com.example.graduate.service.BookService;
 import com.example.graduate.service.BookServiceGateway;
 import com.example.graduate.service.BorrowLogService;
 import com.example.graduate.utils.PageUtil;
+import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,8 +94,38 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
 
     // TODO 消息推送
     @Override
-    public DTO examineBook(Book book) {
-        bookService.updateById(book);
+    public DTO examineBook(Book book) throws NxyException {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if(StringUtil.isBlank(name)){
+            throw new NxyException("请先登录");
+        }
+        Book inDB = bookService.getById(book.getId());
+        inDB.setExamineNote(book.getExamineNote());
+        inDB.setExamineState(book.getExamineState());
+        inDB.setExaminePerson(name);
+        try {
+            bookService.updateById(inDB);
+        }catch (Exception e){
+            throw new NxyException("审核图书失败");
+        }
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+
+    @Override
+    public DTO modifyBook(Book book) throws NxyException {
+        Book inDB = bookService.getById(book.getId());
+        inDB.setAbs(book.getAbs());
+        inDB.setAuthor(book.getAuthor());
+        inDB.setCid(book.getCid());
+        inDB.setCover(book.getCover());
+        inDB.setPress(book.getPress());
+        inDB.setTitle(book.getTitle());
+        try {
+            bookService.updateById(inDB);
+        }catch (Exception e){
+            throw new NxyException("图书更新异常");
+        }
+
         return new DTO(RetCodeEnum.SUCCEED);
     }
 

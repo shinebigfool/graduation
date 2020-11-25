@@ -1,5 +1,6 @@
 package com.example.graduate.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.graduate.mappers.BorrowLogMapper;
 import com.example.graduate.pojo.BorrowLog;
@@ -15,5 +16,17 @@ public class BorrowLogServiceImpl extends ServiceImpl<BorrowLogMapper, BorrowLog
     @Override
     public List<BorrowLogDetail> qryBorrowLogDetail(Map<String, Object> params) {
         return this.baseMapper.qryBorrowLogDetail(params);
+    }
+
+    @Override
+    public int qryTotalRow(Map<String, Object> params) {
+        return this.baseMapper.qryTotalRow(params);
+    }
+
+    @Override
+    public List<BorrowLogDetail> qryLogPage(Page<BorrowLogDetail> page, String title, String author,
+                                      int cid, int borrowState,
+                                      String uploadPerson, String name) {
+        return this.baseMapper.qryLogPage(page,title,author,cid,borrowState,uploadPerson,name);
     }
 }

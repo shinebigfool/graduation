@@ -24,7 +24,7 @@ public class UserDTO extends DTO{
 
     private String email;
 
-    private boolean enable;
+    private boolean enabled;
 
     private int sex;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

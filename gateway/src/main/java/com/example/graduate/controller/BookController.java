@@ -70,7 +70,7 @@ public class BookController {
     @PutMapping("/examine")
     @ApiOperation(value = "审核图书(修改examinePerson，examineState，availableState，examineNote，updateDate字段)")
     @OperationLogAnnotation(description = "审批图书",type = LogOperationType.EXAMINE)
-    DTO examineBook(@RequestBody Book book){
+    DTO examineBook(@RequestBody Book book) throws NxyException {
         return bookServiceGateway.examineBook(book);
     }
 
@@ -92,5 +92,11 @@ public class BookController {
             e.printStackTrace();
             return new DTO(RetCodeEnum.FAIL);
         }
+    }
+
+    @PostMapping("/modify")
+    @ApiOperation(value = "修改图书")
+    DTO modifyBook(@RequestBody Book book) throws NxyException {
+        return bookServiceGateway.modifyBook(book);
     }
 }
