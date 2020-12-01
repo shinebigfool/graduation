@@ -8,8 +8,11 @@ import java.util.List;
 @Data
 public class RoleDTO extends DTO{
     private static final long serialVersionUID = 1L;
+    //角色列表
     private List<String> roles;
+    //头像地址
     private String avatar;
+    //用户名
     private String name;
     public RoleDTO(){
         super();

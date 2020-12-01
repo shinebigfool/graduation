@@ -12,7 +12,7 @@ import java.util.Map;
 public interface BorrowLogServiceGateway {
     DTO lendBook(int bid);
 
-    DTO returnBook(int bid);
+    DTO returnBook(int bid,String name);
 
     ListDTO qryBorrowLog(Map<String,Object> params);
 

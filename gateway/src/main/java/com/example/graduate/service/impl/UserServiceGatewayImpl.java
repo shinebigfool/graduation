@@ -78,8 +78,7 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     public DTO modUser(UserDTO u) {
         User user = UserConverter.INSTANCE.dto2domain(u);
         userService.save(user);
-        List<AdminRole> roles = u.getRoles();
-        List<Integer> rid = roles.stream().map(AdminRole::getId).collect(Collectors.toList());
+
         LambdaQueryWrapper<AdminUserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdminUserRole::getUid,u.getId());
         List<Integer> ids = adminUserRoleService.list(wrapper).stream().map(AdminUserRole::getId).collect(Collectors.toList());
@@ -113,6 +112,9 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     @Override
     public DTO regist(UserDTO userDTO) {
         String name = userDTO.getName();
+        if(StringUtil.isBlank(name)){
+            return new DTO(RetCodeEnum.PARAM_ERROR.getCode(),"非法账号字段，请重新注册");
+        }
         String password = userDTO.getPassword();
         UserDTO userInDB = qryUserByName(name);
         if(!userInDB.getRetCode().equals("900001")){
@@ -124,9 +126,27 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         User user = UserConverter.INSTANCE.dto2domain(userDTO);
         user.setPassword(encodePassword);
         user.setSalt(salt);
-        user.setRegistTime(new Date());
+        user.setEnabled(true);
+        List<Integer> roles = userDTO.getRoles();
 
+        if(roles.contains(1)||roles.contains(2)){
+            //check permission
+            String presentUser = PresentUserUtils.qryPresentUserAccount();
+            if(StringUtil.isBlank(presentUser)){
+                return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"无权限，请先登录");
+            }
+            if(!PresentUserUtils.checkAdminRole()){
+                return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"您无权进行此操作");
+            }
+        }
         userService.save(user);
+        for (Integer role : roles) {
+            AdminUserRole temp = new AdminUserRole();
+            temp.setRid(role);
+            temp.setUid(user.getId());
+            adminUserRoleService.save(temp);
+        }
+
         return new DTO(RetCodeEnum.SUCCEED);
     }
 
@@ -155,9 +175,36 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         List<AdminRole> roles = adminRoleService.listByIds(rids);
         List<String> roleNames = roles.stream().map(AdminRole::getName).collect(Collectors.toList());
         RoleDTO roleDTO = new RoleDTO(RetCodeEnum.SUCCEED);
+        //设置头像url
         roleDTO.setAvatar(one.getPhotoUrl());
+        //设置用户名
         roleDTO.setName(one.getUname());
+        //角色列表
         roleDTO.setRoles(roleNames);
         return roleDTO;
+    }
+
+    @Override
+    public DTO deleteUserByIds(List<Integer> ids) {
+
+        for (Integer id : ids) {
+            LambdaQueryWrapper<AdminUserRole> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(AdminUserRole::getUid,id);
+            adminUserRoleService.removeByIds(adminUserRoleService.list(wrapper).
+                    stream().map(AdminUserRole::getId).collect(Collectors.toList()));
+            userService.removeById(id);
+        }
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+
+    @Override
+    public DTO blackList(int id) {
+        if(!PresentUserUtils.checkAdminRole()){
+            return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"你无权执行此操作");
+        }
+        User inDB = userService.getById(id);
+        inDB.setEnabled(!inDB.isEnabled());
+        userService.updateById(inDB);
+        return new DTO(RetCodeEnum.SUCCEED);
     }
 }

@@ -4,6 +4,7 @@ import com.example.graduate.dto.*;
 import com.example.graduate.pojo.User;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserServiceGateway {
@@ -14,4 +15,6 @@ public interface UserServiceGateway {
     DTO regist(UserDTO userDTO);
     User qryUserInDBByName(String name);
     RoleDTO qryPresentUserRoles();
+    DTO deleteUserByIds(List<Integer> ids);
+    DTO blackList(int id);
 }

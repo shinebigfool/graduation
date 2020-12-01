@@ -66,9 +66,14 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     }
 
     @Override
-    public DTO returnBook(int bid) {
-        SecurityUtils.getSubject().getPrincipal();
-        String name = "bigfool";
+    public DTO returnBook(int bid,String name) {
+        if(PresentUserUtils.qryPresentUserAccount().equals("")){
+            return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
+        }
+        if(StringUtil.isBlank(name)){
+            name = PresentUserUtils.qryPresentUserAccount();
+        }
+        //查找借书记录并检查是否有错
         LambdaQueryWrapper<BorrowLog> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(BorrowLog::getState,2).eq(BorrowLog::getUserAccount,name).eq(BorrowLog::getBookId,bid);
         List<BorrowLog> borrowLogs = borrowLogService.list(wrapper);
@@ -77,12 +82,17 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
             return new DTO(RetCodeEnum.FAIL.getCode(),"您当前有"+borrowLogs.size()+"条对应借书记录" +
                     "请联系管理员进行处理");
         }
+        //更新借书状态
         BorrowLog log = borrowLogs.get(0);
         int totalTime = (int) ((new Date().getTime()-log.getBorrowDate().getTime())/86400000);
         log.setTotalTime(totalTime);
         log.setReturnDate(new Date());
         log.setState(1);
         borrowLogService.updateById(log);
+        //更新图书状态
+        Book bookInDB = bookService.getById(bid);
+        bookInDB.setAvailableState(1);
+        bookService.updateById(bookInDB);
         return new DTO(RetCodeEnum.SUCCEED);
     }
 

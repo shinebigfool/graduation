@@ -20,8 +20,8 @@ public class RuntimeExceptionHandle {
      */
     @ExceptionHandler(RuntimeException.class)
     public DTO runtimeException(RuntimeException exception){
-        log.warn("--------运行时异常 起始--------",exception);
-        log.warn("--------运行时异常 结束--------");
+        log.warn("--------运行时异常（未知） 起始--------",exception);
+        log.warn("--------运行时异常（未知） 结束--------");
         return new DTO(RetCodeEnum.FAIL.getCode(),exception.getMessage());
     }
     /**
@@ -31,8 +31,8 @@ public class RuntimeExceptionHandle {
      */
     @ExceptionHandler(NxyException.class)
     public DTO PersonalDefineException(NxyException exception){
-        log.warn("--------运行时异常 起始--------",exception);
-        log.warn("--------运行时异常 结束--------");
+        log.warn("--------运行时异常（主动抛出） 起始--------",exception);
+        log.warn("--------运行时异常（主动抛出） 结束--------");
         return new DTO(RetCodeEnum.FAIL.getCode(),exception.getMessage());
     }
 

@@ -1,6 +1,7 @@
 package com.example.graduate.service;
 
 import com.example.graduate.dto.DTO;
+import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.exception.NxyException;
 import com.example.graduate.pojo.Book;
@@ -15,5 +16,5 @@ public interface BookServiceGateway {
     DTO delBookById(List<Integer> bids) throws NxyException;
     DTO examineBook(Book book) throws NxyException;
     DTO modifyBook(Book book) throws NxyException;
-
+    ListDTO<Book> suggestBook(Map<String,Object> params);
 }

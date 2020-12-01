@@ -31,7 +31,7 @@ public class UserDTO extends DTO{
     private Date loginTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date registTime;
-    private List<AdminRole> roles;
+    private List<Integer> roles;
     private String photoUrl;
     public UserDTO(RetCodeEnum resultEmpty) {
         super(resultEmpty);
