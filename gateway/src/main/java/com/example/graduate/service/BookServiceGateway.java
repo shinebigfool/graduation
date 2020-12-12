@@ -1,5 +1,6 @@
 package com.example.graduate.service;
 
+import com.example.graduate.dto.BookDTO;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
@@ -17,4 +18,9 @@ public interface BookServiceGateway {
     DTO examineBook(Book book) throws NxyException;
     DTO modifyBook(Book book) throws NxyException;
     ListDTO<Book> suggestBook(Map<String,Object> params);
+    BookDTO qryBookDetail(int id);
+    ListDTO<Book> qryFavoriteBook();
+    DTO addFavoriteBook(Book book);
+    DTO removeFavoriteBook(Book book);
+    Boolean isFavorite(Book book);
 }

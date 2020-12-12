@@ -3,12 +3,16 @@ package com.example.graduate.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
+import com.example.graduate.dto.BookDTO;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.exception.NxyException;
+import com.example.graduate.mapstruct.BookConverter;
 import com.example.graduate.pojo.Book;
+import com.example.graduate.pojo.BookFavorite;
 import com.example.graduate.pojo.BorrowLog;
+import com.example.graduate.service.BookFavoriteService;
 import com.example.graduate.service.BookService;
 import com.example.graduate.service.BookServiceGateway;
 import com.example.graduate.service.BorrowLogService;
@@ -24,6 +28,8 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class BookServiceGatewayImpl implements BookServiceGateway {
@@ -33,6 +39,9 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
 
     @Autowired
     private BorrowLogService borrowLogService;
+
+    @Autowired
+    private BookFavoriteService bookFavoriteService;
 
     @Override
     public PageDTO<Book> qryBook(Map<String, Object> params) {
@@ -65,7 +74,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         book.setExamineState(0);
         String name = SecurityUtils.getSubject().getPrincipal().toString();
         if (name == null || name.equals("")) {
-            return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
+            return new DTO(RetCodeEnum.FORBIDDEN.getCode(), "请先登录");
         }
         book.setUploadPerson(name);
         book.setAvailableState(0);
@@ -110,7 +119,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     public DTO examineBook(Book book) throws NxyException {
         String name = PresentUserUtils.qryPresentUserAccount();
         if (StringUtil.isBlank(name)) {
-            return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
+            return new DTO(RetCodeEnum.FORBIDDEN.getCode(), "请先登录");
         }
         Book inDB = bookService.getById(book.getId());
         //该书审核通过且借出中
@@ -193,6 +202,83 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         }
         dto.setRetList(ret);
         return dto;
+    }
+
+    @Override
+    public BookDTO qryBookDetail(int id) {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if (StringUtil.isBlank(name)) {
+            return new BookDTO(RetCodeEnum.FAIL.getCode(), "请先登录");
+        }
+        Book book = bookService.getById(id);
+        BookDTO bookDTO = BookConverter.INSTANCE.domain2dto(book);
+        if(isFavorite(book)){
+            bookDTO.setFavorite(1);
+        }else {
+            bookDTO.setFavorite(0);
+        }
+        bookDTO.setResult(RetCodeEnum.SUCCEED);
+        return bookDTO;
+    }
+
+    @Override
+    public ListDTO<Book> qryFavoriteBook() {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if(StringUtil.isBlank(name)){
+            return new ListDTO<>(RetCodeEnum.FAIL.getCode(),"请先登录");
+        }
+        LambdaQueryWrapper<BookFavorite> favoriteWrapper = new LambdaQueryWrapper<>();
+        favoriteWrapper.eq(BookFavorite::getUserAccount,name);
+        List<BookFavorite> favorites = bookFavoriteService.list(favoriteWrapper);
+        List<Integer> bids = favorites.stream().map(BookFavorite::getBookId).collect(Collectors.toList());
+        List<Book> books = bookService.listByIds(bids);
+
+        ListDTO<Book> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
+        dto.setRetList(books);
+        return dto;
+    }
+
+    @Override
+    public DTO addFavoriteBook(Book book) {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if(StringUtil.isBlank(name)){
+            return new DTO(RetCodeEnum.FAIL.getCode(),"请先登录");
+        }
+        if(isFavorite(book)){
+            return new DTO(RetCodeEnum.SUCCEED.getCode(),"已在收藏夹");
+        }
+        BookFavorite favorite = new BookFavorite();
+        favorite.setBookId(book.getId());
+        favorite.setBookTitle(book.getTitle());
+        favorite.setUserAccount(name);
+        bookFavoriteService.save(favorite);
+        return new DTO(RetCodeEnum.SUCCEED.getCode(),"收藏成功");
+    }
+
+    @Override
+    public DTO removeFavoriteBook(Book book) {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        LambdaQueryWrapper<BookFavorite> favoriteWrapper = new LambdaQueryWrapper<>();
+        favoriteWrapper.eq(BookFavorite::getBookId,book.getId()).eq(BookFavorite::getUserAccount,name);
+        BookFavorite one = bookFavoriteService.getOne(favoriteWrapper);
+        if(one!=null){
+            bookFavoriteService.removeById(one.getId());
+            return new DTO(RetCodeEnum.SUCCEED.getCode(),"取消收藏成功");
+        }
+        return new DTO(RetCodeEnum.SUCCEED.getCode(),"您的收藏夹中无此书");
+    }
+
+    @Override
+    public Boolean isFavorite(Book book) {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if(StringUtil.isBlank(name)){
+            return false;
+        }
+        LambdaQueryWrapper<BookFavorite> favoriteWrapper = new LambdaQueryWrapper<>();
+        favoriteWrapper.eq(BookFavorite::getBookId,book.getId()).eq(BookFavorite::getUserAccount,name);
+        int count = bookFavoriteService.count(favoriteWrapper);
+
+        return count!=0;
     }
 
 

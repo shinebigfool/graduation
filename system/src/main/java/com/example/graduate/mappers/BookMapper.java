@@ -22,7 +22,7 @@ public interface BookMapper extends BaseMapper<Book> {
             " <if test = 'author!=null and author!=\"\"'> " +
             " or author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
             "</if>" +
-            " <if test = 'cid!=null and cid != -1'> " +
+            " <if test = 'cid!=null and cid != -1 and cid !=\"\" and cid != 0'> " +
             " and cid = #{cid} " +
             "</if>" +
             " <if test = 'examineState!=null and examineState != -1'> " +
@@ -50,7 +50,7 @@ public interface BookMapper extends BaseMapper<Book> {
             " <if test = 'author!=null and author!=\"\"'> " +
             " or author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
             "</if>" +
-            " <if test = 'cid!=null and cid != -1'> " +
+            " <if test = 'cid!=null and cid != -1 and cid != 0 and cid !=\"\"'> " +
             " and cid = #{cid} " +
             "</if>" +
             " <if test = 'examineState!=null and examineState != -1'> " +

@@ -1,9 +1,6 @@
 package com.example.graduate.service;
 
-import com.example.graduate.dto.DTO;
-import com.example.graduate.dto.ListDTO;
-import com.example.graduate.dto.PageDTO;
-import com.example.graduate.dto.PersonalBorrowInfoDTO;
+import com.example.graduate.dto.*;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
 
@@ -19,4 +16,6 @@ public interface BorrowLogServiceGateway {
     PageDTO<BorrowLogDetail> qryWholeLog(Map<String,Object> params);
 
     PersonalBorrowInfoDTO qryPersonalBorrowInfo();
+
+    BookDTO qryBorrowLogDetail(int id);
 }

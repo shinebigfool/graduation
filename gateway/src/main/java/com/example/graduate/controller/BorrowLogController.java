@@ -1,9 +1,6 @@
 package com.example.graduate.controller;
 
-import com.example.graduate.dto.DTO;
-import com.example.graduate.dto.ListDTO;
-import com.example.graduate.dto.PageDTO;
-import com.example.graduate.dto.PersonalBorrowInfoDTO;
+import com.example.graduate.dto.*;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
 import com.example.graduate.service.BorrowLogServiceGateway;
@@ -12,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -32,8 +30,8 @@ public class BorrowLogController {
     @PostMapping("/lend")
     @ApiOperation(value = "借书")
     @ApiImplicitParam(name = "bid", value = "图书id", paramType = "query", required = true)
-    DTO lendBook(@RequestParam int bid) {
-        return borrowLogServiceGateway.lendBook(bid);
+    DTO lendBook(@RequestBody BookDTO book) {
+        return borrowLogServiceGateway.lendBook(book.getId());
     }
 
     @PutMapping("/return")
@@ -88,5 +86,12 @@ public class BorrowLogController {
     @ApiOperation("查询当前用户借书信息统计")
     PersonalBorrowInfoDTO qryPersonalBorrowInfo() {
         return borrowLogServiceGateway.qryPersonalBorrowInfo();
+    }
+
+    @GetMapping("/detail")
+    @ApiOperation("查询借书日志详情")
+    @ApiImplicitParam(name = "id",value = "日志id",required = true,paramType = "query")
+    BookDTO qryBorrowLogDetail(@RequestParam("id") int id){
+        return borrowLogServiceGateway.qryBorrowLogDetail(id);
     }
 }

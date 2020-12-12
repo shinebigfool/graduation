@@ -3,10 +3,8 @@ package com.example.graduate.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
-import com.example.graduate.dto.DTO;
-import com.example.graduate.dto.ListDTO;
-import com.example.graduate.dto.PageDTO;
-import com.example.graduate.dto.PersonalBorrowInfoDTO;
+import com.example.graduate.dto.*;
+import com.example.graduate.mapstruct.BookConverter;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavorite;
 import com.example.graduate.pojo.BorrowLog;
@@ -37,9 +35,7 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     private BookFavoriteService bookFavoriteService;
     @Override
     public DTO lendBook(int bid) {
-        // TODO 获取当前登录用户信息
-        SecurityUtils.getSubject().getPrincipal();
-        String name = "test";
+        String name = PresentUserUtils.qryPresentUserAccount();
         if(StringUtil.isBlank(name)){
             return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
         }
@@ -47,7 +43,7 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
         if(book==null){
             return new DTO(RetCodeEnum.FAIL.getCode(),"查无此书");
         }
-        if (book.getAvailableState()==0){
+        if (book.getAvailableState()==0||book.getAvailableState()==3){
             return new DTO(RetCodeEnum.FAIL.getCode(),"该书暂无法借阅");
         }
         BorrowLog borrowLog = new BorrowLog();
@@ -99,10 +95,10 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     @Override
     public ListDTO qryBorrowLog(Map<String, Object> params) {
         String name=PresentUserUtils.qryPresentUserAccount();
-        if (StringUtil.isBlank(name)){
 
+        if (StringUtil.isBlank(name)){
+            return new ListDTO(RetCodeEnum.FAIL.getCode(),"请先登录");
         }
-        name = "bigfool";
         params.put("name",name);
         List<BorrowLogDetail> borrowLogDetails = borrowLogService.qryBorrowLogDetail(params);
         ListDTO listDTO = new ListDTO(RetCodeEnum.SUCCEED);
@@ -160,10 +156,19 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
         favoriteWrapper.eq(BookFavorite::getUserAccount,name);
         int bookFavorite = bookFavoriteService.count(favoriteWrapper);
         //收藏夹排序，取最近几条图书信息
-        favoriteWrapper.orderByDesc(BookFavorite::getCreateTime);
-        BookFavorite favoriteRecent = bookFavoriteService.getOne(favoriteWrapper);
-        Book bookRecent = bookService.getById(favoriteRecent.getBookId());
-        dto.setResults(bookTotal,bookInHand,bookMonth,bookFavorite,bookRecent);
+
+        dto.setResults(bookTotal,bookInHand,bookMonth,bookFavorite,null);
+        return dto;
+    }
+
+    @Override
+    public BookDTO qryBorrowLogDetail(int id) {
+        BorrowLog log = borrowLogService.getById(id);
+        Book bookInDB = bookService.getById(log.getBookId());
+        BookDTO dto = BookConverter.INSTANCE.domain2dto(bookInDB);
+        dto.setResult(RetCodeEnum.SUCCEED);
+        dto.setBorrowPerson(log.getUserAccount());
+
         return dto;
     }
 }
