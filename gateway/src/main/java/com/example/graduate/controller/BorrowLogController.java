@@ -40,7 +40,7 @@ public class BorrowLogController {
             @ApiImplicitParam(name = "bid", value = "图书id", paramType = "query", required = true),
             @ApiImplicitParam(name = "name", value = "用户账户", paramType = "query", required = false)
     })
-    DTO returnBook(@RequestParam @ApiIgnore Map<String,Object> params) {
+    DTO returnBook(@RequestBody @ApiIgnore Map<String,Object> params) {
         int bid = StringUtil.objectToInt(params.get("bid"));
         String name = StringUtil.parseString(params.get("name"));
         return borrowLogServiceGateway.returnBook(bid,name);

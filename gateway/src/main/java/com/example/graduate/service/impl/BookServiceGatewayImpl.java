@@ -82,7 +82,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         book.setExamineNote("");
         try {
             bookService.save(book);
-            return new DTO(RetCodeEnum.SUCCEED.getCode(), StringUtil.parseString(book.getId()));
+            return new DTO(RetCodeEnum.SUCCEED.getCode(), "新增图书成功，请等待管理员审核");
         } catch (Exception e) {
             throw new NxyException("新增图书失败");
         }
@@ -91,25 +91,22 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     }
 
     @Override
-    public DTO delBookById(List<Integer> bids) throws NxyException {
-        StringBuilder ret = new StringBuilder();
-        List<Book> books = bookService.listByIds(bids);
-        for (Book book : books) {
-            if (book.getAvailableState() == 0 && book.getExamineState() == 1) {
-                ret.append(book.getTitle()).append("\t");
-                continue;
-            }
-            book.setAvailableState(3);
+    public DTO delBookById(int bid) throws NxyException {
+
+        Book book = bookService.getById(bid);
+        //借出状态
+        if (book.getAvailableState() == 0 && book.getExamineState() == 1) {
+            return new DTO(RetCodeEnum.FAIL.getCode(),"此书外接中，下架失败");
         }
+        book.setAvailableState(3);
         try {
-            bookService.updateBatchById(books);
+            bookService.updateById(book);
         } catch (Exception e) {
+            e.printStackTrace();
             return new DTO(RetCodeEnum.EXCEPTION.getCode(), e.getMessage());
         }
-        if (ret.toString().equals("")) {
-            return new DTO(RetCodeEnum.SUCCEED);
-        }
-        return new DTO(RetCodeEnum.FAIL.getCode(), ret.toString());
+
+        return new DTO(RetCodeEnum.SUCCEED);
 
 
     }

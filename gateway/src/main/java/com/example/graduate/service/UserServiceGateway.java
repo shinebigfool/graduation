@@ -15,6 +15,6 @@ public interface UserServiceGateway {
     DTO regist(UserDTO userDTO);
     User qryUserInDBByName(String name);
     RoleDTO qryPresentUserRoles();
-    DTO deleteUserByIds(List<Integer> ids);
+    DTO deleteUserByIds(int id);
     DTO blackList(int id);
 }

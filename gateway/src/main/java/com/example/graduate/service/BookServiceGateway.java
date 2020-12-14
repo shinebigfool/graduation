@@ -14,7 +14,7 @@ import java.util.Map;
 public interface BookServiceGateway {
     PageDTO<Book> qryBook(Map<String,Object> params);
     DTO saveBook(Book book) throws NxyException;
-    DTO delBookById(List<Integer> bids) throws NxyException;
+    DTO delBookById(int bid) throws NxyException;
     DTO examineBook(Book book) throws NxyException;
     DTO modifyBook(Book book) throws NxyException;
     ListDTO<Book> suggestBook(Map<String,Object> params);

@@ -12,6 +12,6 @@ public class PresentUserUtils {
     }
     public static boolean checkAdminRole(){
         Subject subject = SecurityUtils.getSubject();
-        return subject.hasRole("Admin");
+        return subject.hasRole("admin");
     }
 }

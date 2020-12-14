@@ -9,10 +9,7 @@ import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavorite;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
-import com.example.graduate.service.BookFavoriteService;
-import com.example.graduate.service.BookService;
-import com.example.graduate.service.BorrowLogService;
-import com.example.graduate.service.BorrowLogServiceGateway;
+import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
@@ -33,6 +30,8 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     private BorrowLogService borrowLogService;
     @Autowired
     private BookFavoriteService bookFavoriteService;
+    @Autowired
+    private BookServiceGateway bookServiceGateway;
     @Override
     public DTO lendBook(int bid) {
         String name = PresentUserUtils.qryPresentUserAccount();
@@ -166,6 +165,8 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
         BorrowLog log = borrowLogService.getById(id);
         Book bookInDB = bookService.getById(log.getBookId());
         BookDTO dto = BookConverter.INSTANCE.domain2dto(bookInDB);
+        dto.setFavorite(bookServiceGateway.isFavorite(bookInDB)?1:0);
+
         dto.setResult(RetCodeEnum.SUCCEED);
         dto.setBorrowPerson(log.getUserAccount());
 

@@ -4,6 +4,7 @@ import com.example.graduate.annotation.OperationLogAnnotation;
 import com.example.graduate.bean.RuleEngineRequest;
 import com.example.graduate.codeEnum.LogOperationType;
 import com.example.graduate.codeEnum.RetCodeEnum;
+import com.example.graduate.config.GroovyDynamicLoader;
 import com.example.graduate.dto.BookDTO;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +39,8 @@ import java.util.Map;
 public class BookController {
     @Autowired
     private BookServiceGateway bookServiceGateway;
-
+    @Resource
+    private GroovyDynamicLoader groovyDynamicLoader;
     @Autowired
     private GroovyParserEngine groovyParserEngine;
     @GetMapping("/page")
@@ -67,8 +70,12 @@ public class BookController {
     @DeleteMapping("/book")
     @ApiOperation(value = "下架图书")
     @OperationLogAnnotation(description = "下架图书", type = LogOperationType.DELETE)
-    DTO delBookById(@RequestParam List<Integer> bids) throws NxyException {
-        return bookServiceGateway.delBookById(bids);
+    DTO delBookById(@RequestBody Map<String,Object> map) throws NxyException {
+        int bid = StringUtil.objectToInt(map.get("bid"));
+        if(bid==-1){
+            return new DTO(RetCodeEnum.FAIL.getCode(),"图书id错误");
+        }
+        return bookServiceGateway.delBookById(bid);
     }
 
     @PostMapping("/book")
@@ -90,8 +97,8 @@ public class BookController {
     }
 
     @PostMapping("/cover")
-    @ApiOperation(value = "上传图片")
-    @OperationLogAnnotation(description = "上传图书",type = LogOperationType.ADD)
+    @ApiOperation(value = "上传图片封面")
+    @OperationLogAnnotation(description = "修改图书封面",type = LogOperationType.UPDATE)
     DTO coversUpload(MultipartFile file) {
         String folder = "D:/pic";
         File imageFolder = new File(folder);
@@ -101,13 +108,13 @@ public class BookController {
             f.getParentFile().mkdirs();
         try {
             file.transferTo(f);
-            String imgURL = "http://localhost:2048/api/file/" + f.getName();
-            System.out.println(imgURL);
-            return new DTO(RetCodeEnum.SUCCEED.getCode(), imgURL);
         } catch (IOException e) {
             e.printStackTrace();
             return new DTO(RetCodeEnum.FAIL);
         }
+        String imgURL = "http://localhost:2048/api/file/" + f.getName();
+        System.out.println(imgURL);
+        return new DTO(RetCodeEnum.SUCCEED.getCode(), imgURL);
     }
 
     @PostMapping("/modify")
@@ -152,6 +159,18 @@ public class BookController {
     DTO test(){
         RuleEngineRequest request = new RuleEngineRequest();
         request.setInterfaceId("BookFair");
+        request.setParams(new HashMap<>());
+        return groovyParserEngine.parse2DTO(request);
+    }
+    @GetMapping("/refresh")
+    DTO refresh(){
+        groovyDynamicLoader.refresh();
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+    @GetMapping("/testRefresh")
+    DTO test1(){
+        RuleEngineRequest request = new RuleEngineRequest();
+        request.setInterfaceId("TestRefresh");
         request.setParams(new HashMap<>());
         return groovyParserEngine.parse2DTO(request);
     }

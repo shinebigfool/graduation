@@ -79,8 +79,7 @@ public class UserController {
         if (StringUtil.isBlank(u.getName())) {
             return new DTO(RetCodeEnum.PARAM_ERROR.getCode(), "非法账号");
         }
-        userServiceGateway.modUser(u);
-        return null;
+        return userServiceGateway.modUser(u);
     }
 
     @PostMapping("/login")
@@ -137,16 +136,17 @@ public class UserController {
         return new DTO(RetCodeEnum.SUCCEED);
     }
     /**
-     * 角色用户关联表，用户表
      *
-     * @param ids 支持批量删
+     *
+     * @param params json格式
      * @return com.example.graduate.dto.DTO
      */
     @DeleteMapping("/user")
     @ApiOperation(value = "删除用户")
     @ApiImplicitParam(paramType = "query",name = "ids",required = true)
-    DTO deleteUserByIds(@RequestParam List<Integer> ids){
-        return userServiceGateway.deleteUserByIds(ids);
+    DTO deleteUserByIds(@RequestBody Map<String,Object> params){
+        int id = StringUtil.objectToInt(params.get("id"));
+        return userServiceGateway.deleteUserByIds(id);
     }
     /**
      *
