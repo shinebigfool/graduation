@@ -1,6 +1,7 @@
 package com.example.graduate.service;
 
 import com.example.graduate.dto.*;
+import com.example.graduate.pojo.AdminRole;
 import com.example.graduate.pojo.User;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -17,4 +18,5 @@ public interface UserServiceGateway {
     RoleDTO qryPresentUserRoles();
     DTO deleteUserByIds(int id);
     DTO blackList(int id);
+    ListDTO<AdminRole> listRole();
 }

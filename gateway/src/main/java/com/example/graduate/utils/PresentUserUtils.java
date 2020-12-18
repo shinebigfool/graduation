@@ -10,7 +10,8 @@ public class PresentUserUtils {
         }
         return SecurityUtils.getSubject().getPrincipal().toString();
     }
-    public static boolean checkAdminRole(){
+    //检查当前登录用户是否为管理员
+    public static boolean hasAdminRole(){
         Subject subject = SecurityUtils.getSubject();
         return subject.hasRole("admin");
     }

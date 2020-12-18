@@ -87,7 +87,12 @@ public class BorrowLogController {
     PersonalBorrowInfoDTO qryPersonalBorrowInfo() {
         return borrowLogServiceGateway.qryPersonalBorrowInfo();
     }
-
+    /**
+     *
+     *
+     * @param id 借书日志id
+     * @return com.example.graduate.dto.BookDTO
+     */
     @GetMapping("/detail")
     @ApiOperation("查询借书日志详情")
     @ApiImplicitParam(name = "id",value = "日志id",required = true,paramType = "query")

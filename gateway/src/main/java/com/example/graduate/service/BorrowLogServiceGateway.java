@@ -18,4 +18,6 @@ public interface BorrowLogServiceGateway {
     PersonalBorrowInfoDTO qryPersonalBorrowInfo();
 
     BookDTO qryBorrowLogDetail(int id);
+
+    Boolean isInHand(int bid,String userAccount);
 }

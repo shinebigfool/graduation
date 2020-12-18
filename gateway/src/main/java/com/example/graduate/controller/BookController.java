@@ -1,7 +1,13 @@
 package com.example.graduate.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.graduate.annotation.OperationLogAnnotation;
+import com.example.graduate.bean.GroovyInfo;
 import com.example.graduate.bean.RuleEngineRequest;
+import com.example.graduate.cache.BeanNameCache;
+import com.example.graduate.cache.GroovyInnerCache;
+import com.example.graduate.cache.GroovyScriptCache;
+import com.example.graduate.cache.RuleCache;
 import com.example.graduate.codeEnum.LogOperationType;
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.config.GroovyDynamicLoader;
@@ -11,8 +17,12 @@ import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.exception.NxyException;
 import com.example.graduate.pojo.Book;
+import com.example.graduate.pojo.CalculateRule;
 import com.example.graduate.service.BookServiceGateway;
+import com.example.graduate.service.CalculateRuleService;
 import com.example.graduate.service.GroovyParserEngine;
+import com.example.graduate.service.RuleServiceGateway;
+import com.example.graduate.utils.GroovyScriptUtil;
 import com.example.graduate.utils.StringUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,6 +35,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +54,10 @@ public class BookController {
     private GroovyDynamicLoader groovyDynamicLoader;
     @Autowired
     private GroovyParserEngine groovyParserEngine;
+    @Autowired
+    private CalculateRuleService calculateRuleService;
+    @Autowired
+    private RuleServiceGateway ruleServiceGateway;
     @GetMapping("/page")
     @ApiOperation(value = "分页查询图书(String模糊查，int精准查)")
     @ApiImplicitParams({
@@ -156,22 +171,79 @@ public class BookController {
     }
 
     @GetMapping("/testEngine")
-    DTO test(){
+    @ApiIgnore
+    DTO testEngine(@RequestParam int id){
+        String interfaceId = calculateRuleService.getById(id).getInterfaceId();
         RuleEngineRequest request = new RuleEngineRequest();
-        request.setInterfaceId("BookFair");
-        request.setParams(new HashMap<>());
+        request.setInterfaceId(interfaceId);
+        Map<String,Object> params = new HashMap<>();
+        List<Integer> nums = new ArrayList<>();
+        nums.add(10);
+        nums.add(11);
+        params.put("str1",111);
+        params.put("str2",222);
+        params.put("num",nums);
+        params.put("rule",calculateRuleService.getById(id));
+        request.setParams(params);
         return groovyParserEngine.parse2DTO(request);
     }
-    @GetMapping("/refresh")
-    DTO refresh(){
+    @GetMapping("/refreshCache")
+    @ApiIgnore
+    DTO refreshCache(){
         groovyDynamicLoader.refresh();
+        GroovyScriptCache.clear();
+        RuleCache.clear();
         return new DTO(RetCodeEnum.SUCCEED);
     }
-    @GetMapping("/testRefresh")
-    DTO test1(){
-        RuleEngineRequest request = new RuleEngineRequest();
-        request.setInterfaceId("TestRefresh");
-        request.setParams(new HashMap<>());
-        return groovyParserEngine.parse2DTO(request);
+    @GetMapping("/removeRule")
+    @ApiIgnore
+    DTO test3(@RequestParam int id){
+        LambdaQueryWrapper<CalculateRule> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CalculateRule::getBeanName,"CalculateBookFair");
+        ruleServiceGateway.deleteRule(calculateRuleService.getById(id));
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+
+    @GetMapping("/invokeRule")
+    @ApiIgnore
+    DTO invokeRule(@RequestParam int id) throws Exception {
+        CalculateRule calculateRule = calculateRuleService.getById(id);
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("str1","1111");
+        params.put("str2","2222");
+        GroovyScriptUtil.invoke(calculateRule,params);
+        GroovyScriptCache.listCache();
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+
+
+    @GetMapping("/removeCache")
+    @ApiIgnore
+    DTO removeCache(@RequestParam int id){
+        CalculateRule calculateRule = calculateRuleService.getById(id);
+        ruleServiceGateway.deleteRuleFromCache(calculateRule);
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+    @GetMapping("/showAllCache")
+    @ApiIgnore
+    DTO showAllCache(){
+        System.out.println("BeanNameCache");
+        BeanNameCache.listMap();
+        System.out.println("GroovyInnerCache");
+        GroovyInnerCache.listMap();
+        System.out.println("GroovyScriptCache");
+        GroovyScriptCache.listCache();
+        System.out.println("GroovyClassLoaderCache");
+        RuleCache.listCache();
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+    @GetMapping("/groovyClassloader")
+    @ApiIgnore
+    DTO testGroovyClassloader(@RequestParam int id) throws InstantiationException, IllegalAccessException {
+        CalculateRule calculateRule = calculateRuleService.getById(id);
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("str1","1111");
+        params.put("str2","2222");
+        return GroovyScriptUtil.invokeByGroovyClassLoader(calculateRule,params);
     }
 }

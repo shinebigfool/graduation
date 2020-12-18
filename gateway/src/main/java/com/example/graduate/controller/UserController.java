@@ -2,6 +2,7 @@ package com.example.graduate.controller;
 
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.*;
+import com.example.graduate.pojo.AdminRole;
 import com.example.graduate.service.UserService;
 import com.example.graduate.service.UserServiceGateway;
 import com.example.graduate.utils.StringUtil;
@@ -118,7 +119,7 @@ public class UserController {
      * @return com.example.graduate.dto.RoleDTO
      */
     @GetMapping("/role")
-    @ApiOperation(value = "查询当前登录用户的角色信息")
+    @ApiOperation(value = "查询当前登录用户的信息")
     RoleDTO qryPresentUserRoles() {
         return userServiceGateway.qryPresentUserRoles();
     }
@@ -159,5 +160,11 @@ public class UserController {
     @ApiImplicitParam(paramType = "query",name = "id",required = true)
     DTO blackList(@RequestParam int id){
         return userServiceGateway.blackList(id);
+    }
+
+    @GetMapping("/roleList")
+    @ApiOperation(value = "获取角色列表")
+    ListDTO<AdminRole> listRole(){
+        return userServiceGateway.listRole();
     }
 }

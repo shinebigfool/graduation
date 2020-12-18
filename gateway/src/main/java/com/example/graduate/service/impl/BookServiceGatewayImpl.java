@@ -12,10 +12,7 @@ import com.example.graduate.mapstruct.BookConverter;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavorite;
 import com.example.graduate.pojo.BorrowLog;
-import com.example.graduate.service.BookFavoriteService;
-import com.example.graduate.service.BookService;
-import com.example.graduate.service.BookServiceGateway;
-import com.example.graduate.service.BorrowLogService;
+import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
@@ -43,6 +40,8 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     @Autowired
     private BookFavoriteService bookFavoriteService;
 
+    @Autowired
+    private BorrowLogServiceGateway borrowLogServiceGateway;
     @Override
     public PageDTO<Book> qryBook(Map<String, Object> params) {
         PageDTO<Book> pageDTO = new PageDTO<>(RetCodeEnum.SUCCEED);
@@ -208,12 +207,18 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
             return new BookDTO(RetCodeEnum.FAIL.getCode(), "请先登录");
         }
         Book book = bookService.getById(id);
+        Boolean isInHand = borrowLogServiceGateway.isInHand(id,name);
+        if(isInHand==null){
+            return new BookDTO(RetCodeEnum.EXCEPTION.getCode(),"当前用户借书记录存在异常！");
+        }
         BookDTO bookDTO = BookConverter.INSTANCE.domain2dto(book);
         if(isFavorite(book)){
             bookDTO.setFavorite(1);
         }else {
             bookDTO.setFavorite(0);
         }
+
+        bookDTO.setIsInHand(isInHand?2:1);
         bookDTO.setResult(RetCodeEnum.SUCCEED);
         return bookDTO;
     }

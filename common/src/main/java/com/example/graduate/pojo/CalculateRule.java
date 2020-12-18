@@ -21,4 +21,5 @@ public class CalculateRule {
     private Date createdTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifiedTime;
+    private String resource;
 }

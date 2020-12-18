@@ -69,12 +69,15 @@ public class GroovyInnerCache {
      *
      * @param groovyList
      */
-    private static void removeMap(List<GroovyInfo> groovyList) {
+    public static void removeMap(List<GroovyInfo> groovyList) {
         for (GroovyInfo groovyInfo : groovyList) {
             groovyMap.remove(groovyInfo.getClassName());
         }
     }
 
+    public static void removeMap(String key){
+        groovyMap.remove(key);
+    }
     /**
      * 根据名称获取脚本信息
      *
@@ -92,5 +95,9 @@ public class GroovyInnerCache {
      */
     public static Map<String, GroovyInfo> getGroovyInfos() {
         return groovyMap;
+    }
+
+    public static void listMap(){
+        System.out.println(groovyMap.keySet());
     }
 }

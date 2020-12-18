@@ -216,7 +216,7 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
         //把BeanName缓存到map
         BeanNameCache.put2map(beanNameList);
     }
-    private void destroyBeanDefinition(List<GroovyInfo> groovyInfos) {
+    public void destroyBeanDefinition(List<GroovyInfo> groovyInfos) {
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
         for (GroovyInfo groovyInfo : groovyInfos) {
             try {
@@ -224,6 +224,19 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
             } catch (Exception e) {
                 System.out.println("【Groovy】delete groovy bean definition exception. skip:" + groovyInfo.getClassName());
             }
+        }
+    }
+    public void destroyBeanDefinition(CalculateRule calculateRule){
+        if(GroovyInnerCache.getByName(calculateRule.getBeanName())==null){
+            return;
+        }
+        DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
+        try {
+            GroovyInnerCache.removeMap(calculateRule.getBeanName());
+            BeanNameCache.removeMap(calculateRule.getInterfaceId());
+            beanFactory.removeBeanDefinition(calculateRule.getBeanName());
+        } catch (Exception e) {
+            System.out.println("【Groovy】delete groovy bean definition exception. skip:" + calculateRule.getBeanName());
         }
     }
     private void destroyScriptBeanFactory() {

@@ -172,4 +172,20 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
 
         return dto;
     }
+
+    @Override
+    public Boolean isInHand(int bid,String userAccount) {
+        LambdaQueryWrapper<BorrowLog> borrowWrapper = new LambdaQueryWrapper<>();
+        borrowWrapper.eq(BorrowLog::getBookId,bid).
+                eq(BorrowLog::getUserAccount,userAccount).
+                eq(BorrowLog::getState,2);
+        List<BorrowLog> list = borrowLogService.list(borrowWrapper);
+        if(list.size()==1){
+            return true;
+        }
+        if(list.size()==0){
+            return false;
+        }
+        return null;
+    }
 }

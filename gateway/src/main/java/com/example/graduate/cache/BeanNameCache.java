@@ -32,8 +32,13 @@ public class BeanNameCache {
             }
         }
     }
-
+        public static void removeMap(String key){
+        beanNameMap.remove(key);
+    }
     public static String getByInterfaceId(String interfaceId) {
         return beanNameMap.get(interfaceId);
+    }
+    public static void listMap(){
+        System.out.println(beanNameMap.keySet());
     }
 }

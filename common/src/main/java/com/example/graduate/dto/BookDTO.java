@@ -27,8 +27,12 @@ public class BookDTO extends DTO{
     private Date insertDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateDate;
+    //当前登录用户是否收藏了此书
     private int favorite;
+    //借书人
     private String borrowPerson;
+    //是否未归还
+    private int isInHand;
     public BookDTO(){
         super();
     }
