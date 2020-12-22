@@ -56,9 +56,10 @@ public class UserController {
     @GetMapping("/page")
     @ApiOperation(value = "用户信息分页查询")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "用户账号", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "name", value = "用户昵称", required = false, paramType = "query"),
             @ApiImplicitParam(name = "current", value = "当前页面", required = true, paramType = "query"),
-            @ApiImplicitParam(name = "size", value = "页面大小", required = true, paramType = "query")
+            @ApiImplicitParam(name = "size", value = "页面大小", required = true, paramType = "query"),
+            @ApiImplicitParam(name = "account", value = "用户账号",required = false,paramType = "query")
     })
     PageDTO<UserDTO> qryUsersByPage(@ApiIgnore @RequestParam Map<String, Object> params) {
 
@@ -167,4 +168,5 @@ public class UserController {
     ListDTO<AdminRole> listRole(){
         return userServiceGateway.listRole();
     }
+
 }

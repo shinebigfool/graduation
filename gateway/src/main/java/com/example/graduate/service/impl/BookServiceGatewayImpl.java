@@ -283,5 +283,17 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         return count!=0;
     }
 
+    @Override
+    public ListDTO<Book> qryFavoriteBook(Map<String, Object> params) {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        if(StringUtil.isBlank(name)){
+            return new ListDTO<>(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
+        }
+        params.put("name",name);
+        ListDTO<Book> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
+        dto.setRetList(bookFavoriteService.qryFavoriteBook(params));
+        return dto;
+    }
+
 
 }

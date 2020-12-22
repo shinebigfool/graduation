@@ -88,7 +88,7 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         return pageDTO;
     }
 
-    // TODO 修改用户信息有问题
+
     @Override
     public DTO modUser(UserDTO u) {
         //check permission
@@ -125,9 +125,9 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         }
         adminUserRoleService.saveBatch(userRoles);
         User user = UserConverter.INSTANCE.dto2domain(u);
-        userService.save(user);
+        userService.updateById(user);
 
-        return null;
+        return new DTO(RetCodeEnum.SUCCEED);
     }
 
     @Override

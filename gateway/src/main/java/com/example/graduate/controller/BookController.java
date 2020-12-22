@@ -2,7 +2,6 @@ package com.example.graduate.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.graduate.annotation.OperationLogAnnotation;
-import com.example.graduate.bean.GroovyInfo;
 import com.example.graduate.bean.RuleEngineRequest;
 import com.example.graduate.cache.BeanNameCache;
 import com.example.graduate.cache.GroovyInnerCache;
@@ -34,7 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,6 +168,18 @@ public class BookController {
     @ApiOperation(value = "取消收藏")
     DTO removeFavoriteBook(@RequestBody Book book){
         return bookServiceGateway.removeFavoriteBook(book);
+    }
+
+    @GetMapping("/searchFavorite")
+    @ApiOperation(value = "模糊查收藏图书")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "title", value = "标题", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "author", value = "作者", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "cid", value = "种类ID", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "uploadPerson", value = "上传者", required = false, paramType = "query")
+    })
+    ListDTO<Book> qryFavoriteBook(@ApiIgnore @RequestParam Map<String, Object> params){
+        return bookServiceGateway.qryFavoriteBook(params);
     }
 
     @GetMapping("/testEngine")
