@@ -41,6 +41,7 @@ public class ClassServiceGatewayImpl implements ClassServiceGateway {
         List<SchoolClassDTO> classDTOS = ClassConverter.INSTANCE.domain2dto(classes);
         for (SchoolClassDTO classDTO : classDTOS) {
             classDTO.setUserAmount(countUser(classDTO.getId()));
+            classDTO.setName(classDTO.getClassGrade()+classDTO.getClassId()+"班"+classDTO.getClassName());
         }
         ListDTO<SchoolClassDTO> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
         dto.setRetList(classDTOS);

@@ -1,7 +1,9 @@
 package com.example.graduate.controller;
 
+import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
+import com.example.graduate.dto.ObjectDTO;
 import com.example.graduate.dto.SchoolClassDTO;
 import com.example.graduate.pojo.SchoolClass;
 import com.example.graduate.pojo.User;
@@ -74,21 +76,30 @@ public class SchoolClassController {
     //以班级为单位，以年级为单位计算总借书量，活跃人数
     @GetMapping("/readingAmountByClass")
     @ApiOperation(value = "按班级统计阅读量")
-    List<Map<String,Object>> qryReadingAmountByClass(){
-        return schoolClassService.qryReadingAmountByClass();
+    ObjectDTO qryReadingAmountByClass(){
+        ObjectDTO dto = new ObjectDTO(RetCodeEnum.SUCCEED);
+        dto.setData(schoolClassService.qryReadingAmountByClass());
+        return dto;
     }
     @GetMapping("/readingAmountByGrade")
     @ApiOperation(value = "按年级统计阅读量")
-    List<Map<String,Object>> qryReadingAmountByGrade(){
-        return schoolClassService.qryReadingAmountByGrade();
+    ObjectDTO qryReadingAmountByGrade(){
+        ObjectDTO dto = new ObjectDTO(RetCodeEnum.SUCCEED);
+        dto.setData(schoolClassService.qryReadingAmountByGrade());
+        return dto;
     }
     @GetMapping("/readingStuByClass")
     @ApiOperation(value = "按班级统计活跃人数")
-    List<Map<String,Object>> qryReadingStuByClass(){
-        return schoolClassService.qryReadingStuByClass();
+    ObjectDTO qryReadingStuByClass(){
+        ObjectDTO dto = new ObjectDTO(RetCodeEnum.SUCCEED);
+        dto.setData(schoolClassService.qryReadingStuByClass());
+        return dto;
     }
     @GetMapping("/readingStuByGrade")
-    List<Map<String,Object>> qryReadingStuByGrade(){
-        return schoolClassService.qryReadingStuByGrade();
+    @ApiOperation(value = "按年级统计活跃人数")
+    ObjectDTO qryReadingStuByGrade(){
+        ObjectDTO dto = new ObjectDTO(RetCodeEnum.SUCCEED);
+        dto.setData(schoolClassService.qryReadingStuByGrade());
+        return dto;
     }
 }

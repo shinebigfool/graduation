@@ -15,6 +15,7 @@ public class SchoolClassDTO extends DTO{
     private int userAmount;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
+    private String name;
     public SchoolClassDTO(){
         super();
     }

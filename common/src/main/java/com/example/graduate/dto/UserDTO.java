@@ -5,6 +5,7 @@ import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.pojo.AdminRole;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
@@ -25,7 +26,10 @@ public class UserDTO extends DTO{
     private String email;
 
     private boolean enabled;
-
+    private int age;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date birthday;
     private int sex;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date loginTime;
@@ -34,6 +38,8 @@ public class UserDTO extends DTO{
     private List<Integer> roles;
     private List<AdminRole> adminRoles;
     private String photoUrl;
+    //1学生2老师3家长4访客
+    private int mainRole;
     public UserDTO(RetCodeEnum resultEmpty) {
         super(resultEmpty);
     }

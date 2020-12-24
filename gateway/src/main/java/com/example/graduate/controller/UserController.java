@@ -108,7 +108,8 @@ public class UserController {
             @ApiImplicitParam(paramType = "query",name = "email",required = false,value = "邮箱"),
             @ApiImplicitParam(paramType = "query",name = "photoUrl",required = true,value = "头像地址"),
             @ApiImplicitParam(paramType = "query",name = "roles",required = false,value = "角色列表"),
-            @ApiImplicitParam(paramType = "query",name = "sex",required = false,value = "性别")
+            @ApiImplicitParam(paramType = "query",name = "sex",required = false,value = "性别"),
+            @ApiImplicitParam(paramType = "query",name = "birthday",required = false,value = "生日")
     })
     DTO regist(@RequestBody @ApiIgnore UserDTO userDTO) {
         return userServiceGateway.regist(userDTO);
@@ -169,4 +170,16 @@ public class UserController {
         return userServiceGateway.listRole();
     }
 
+    @GetMapping("/student")
+    @ApiOperation(value = "分页查询用户信息(带班级，用户名，账号筛选条件)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "用户昵称", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "current", value = "当前页面", required = true, paramType = "query"),
+            @ApiImplicitParam(name = "size", value = "页面大小", required = true, paramType = "query"),
+            @ApiImplicitParam(name = "uname", value = "用户账号",required = false,paramType = "query"),
+            @ApiImplicitParam(name = "cid", value = "班级",required = false,paramType = "query")
+    })
+    PageDTO<UserDTO> qryUsersPage(@ApiIgnore @RequestParam Map<String,Object> params){
+        return userServiceGateway.qryUsersPage(params);
+    }
 }

@@ -19,4 +19,6 @@ public interface UserServiceGateway {
     DTO deleteUserByIds(int id);
     DTO blackList(int id);
     ListDTO<AdminRole> listRole();
+    int calMainRole(List<Integer> rids);
+    PageDTO<UserDTO> qryUsersPage(Map<String,Object> params);
 }

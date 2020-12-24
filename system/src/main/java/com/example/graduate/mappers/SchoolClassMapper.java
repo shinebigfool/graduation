@@ -12,25 +12,25 @@ import java.util.Map;
 public interface SchoolClassMapper extends BaseMapper<SchoolClass> {
     @Select("select count(1) readingAmount,b.class_id,c.class_name from borrow_log a \n" +
             "left join user b on a.user_account = b.name\n" +
-            "left join school_class c on c.class_id = b.class_id\n" +
-            "group by b.class_id")
+            "left join school_class c on c.id = b.class_id\n" +
+            "group by b.class_id order by b.class_id")
     List<Map<String,Object>> qryReadingAmountByClass();
 
     @Select("select count(1) readingAmount,c.class_grade from borrow_log a \n" +
             "left join user b on a.user_account = b.name\n" +
-            "left join school_class c on c.class_id = b.class_id\n" +
-            "group by c.class_grade")
+            "left join school_class c on c.id = b.class_id\n" +
+            "group by c.class_grade order by c.class_grade")
     List<Map<String,Object>> qryReadingAmountByGrade();
 
     @Select("select count(distinct a.user_account) readingAmount,b.class_id,c.class_name from borrow_log a \n" +
             "left join user b on a.user_account = b.name\n" +
-            "left join school_class c on c.class_id = b.class_id\n" +
-            "group by b.class_id")
+            "left join school_class c on c.id = b.class_id\n" +
+            "group by b.class_id order by b.class_id")
     List<Map<String,Object>> qryReadingStuByClass();
 
     @Select("select count(distinct a.user_account) readingAmount,c.class_grade from borrow_log a \n" +
             "left join user b on a.user_account = b.name\n" +
-            "left join school_class c on c.class_id = b.class_id\n" +
-            "group by c.class_grade")
+            "left join school_class c on c.id = b.class_id\n" +
+            "group by c.class_grade order by c.class_grade")
     List<Map<String,Object>> qryReadingStuByGrade();
 }

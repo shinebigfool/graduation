@@ -26,10 +26,7 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +38,8 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     private AdminUserRoleService adminUserRoleService;
     @Autowired
     private AdminRoleService adminRoleService;
+    Calendar now = Calendar.getInstance();
+    Calendar birthday = Calendar.getInstance();
 
     public UserDTO qryUserByName(String name) {
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
@@ -70,19 +69,29 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         if (userList.size() <= 0) {
             pageDTO.setResult(RetCodeEnum.RESULT_EMPTY);
         }
+
         List<UserDTO> userDTOS = UserConverter.INSTANCE.domain2dto(userList);
-        // 获取用户角色信息
+
         for (UserDTO userDTO : userDTOS) {
+            //计算用户年龄
+            now.setTime(new Date());
+            birthday.setTime(userDTO.getBirthday());
+            userDTO.setAge(now.get(Calendar.YEAR) - birthday.get(Calendar.YEAR));
+            // 获取用户角色信息
             LambdaQueryWrapper<AdminUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
-            userRoleWrapper.eq(AdminUserRole::getUid,userDTO.getId());
+            userRoleWrapper.eq(AdminUserRole::getUid, userDTO.getId());
             List<Integer> rids = adminUserRoleService.list(userRoleWrapper).stream().
                     map(AdminUserRole::getRid).collect(Collectors.toList());
-            if(rids.size()==0){
+            //设置用户主身份
+            userDTO.setMainRole(calMainRole(rids));
+            if (rids.size() == 0) {
                 continue;
             }
             List<AdminRole> roles = adminRoleService.listByIds(rids);
+
             userDTO.setAdminRoles(roles);
             userDTO.setRoles(rids);
+
         }
         pageDTO.setRetList(userDTOS);
         return pageDTO;
@@ -92,9 +101,9 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     @Override
     public DTO modUser(UserDTO u) {
         //check permission
-        if(!PresentUserUtils.hasAdminRole()&&
-                !PresentUserUtils.qryPresentUserAccount().equals(u.getName())){
-            return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"您无权执行此操作");
+        if (!PresentUserUtils.hasAdminRole() &&
+                !PresentUserUtils.qryPresentUserAccount().equals(u.getName())) {
+            return new DTO(RetCodeEnum.FORBIDDEN.getCode(), "您无权执行此操作");
         }
         LambdaQueryWrapper<AdminUserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AdminUserRole::getUid, u.getId());
@@ -266,5 +275,58 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         ListDTO<AdminRole> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
         dto.setRetList(roles);
         return dto;
+    }
+
+    @Override
+    public int calMainRole(List<Integer> rids) {
+        if (rids.size() == 0) {
+            return 4;
+        }
+        if (rids.contains(1) || rids.contains(2) || rids.contains(10)) {
+            return 2;
+        } else if (rids.contains(9)) {
+            return 1;
+        } else if (rids.contains(11)) {
+            return 3;
+        } else {
+            return 4;
+        }
+    }
+
+    @Override
+    public PageDTO<UserDTO> qryUsersPage(Map<String, Object> params) {
+        int totalRow = userService.qryTotal(params);
+        PageDTO<UserDTO> pageDTO= new PageDTO<>(RetCodeEnum.SUCCEED);
+        params.put("totalRow", totalRow);
+        int size = PageUtil.transParam2Page(params, pageDTO);
+        int current = StringUtil.objectToInt(params.get("current"));
+        Page<User> page = new Page<>(current,size);
+        String name = StringUtil.parseString(params.get("name"));
+        String uname = StringUtil.parseString(params.get("uname"));
+        int cid = StringUtil.objectToInt(params.get("cid"));
+        List<User> users = userService.qryUserPage(page, name, cid, uname);
+        List<UserDTO> userDTOS = UserConverter.INSTANCE.domain2dto(users);
+        for (UserDTO userDTO : userDTOS) {
+            //计算用户年龄
+            now.setTime(new Date());
+            birthday.setTime(userDTO.getBirthday());
+            userDTO.setAge(now.get(Calendar.YEAR) - birthday.get(Calendar.YEAR));
+            // 获取用户角色信息
+            LambdaQueryWrapper<AdminUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
+            userRoleWrapper.eq(AdminUserRole::getUid, userDTO.getId());
+            List<Integer> rids = adminUserRoleService.list(userRoleWrapper).stream().
+                    map(AdminUserRole::getRid).collect(Collectors.toList());
+            //设置用户主身份
+            userDTO.setMainRole(calMainRole(rids));
+            if (rids.size() == 0) {
+                continue;
+            }
+            List<AdminRole> roles = adminRoleService.listByIds(rids);
+
+            userDTO.setAdminRoles(roles);
+            userDTO.setRoles(rids);
+        }
+        pageDTO.setRetList(userDTOS);
+        return pageDTO;
     }
 }
