@@ -30,13 +30,13 @@ public interface UserMapper extends BaseMapper<User> {
             "left join user_class b on a.id = b.uid " +
             "<where> " +
             "<if test = 'name!=null and name!=\"\"'> " +
-            " and a.name like concat(#{name},'%') " +
+            " or a.name like concat(#{name},'%') " +
             "</if> " +
             "<if test = 'cid!=null and cid != 0 and cid != -1'>" +
-            " and b.cid = #{cid} " +
+            " or b.cid = #{cid} " +
             "</if> " +
             "<if test = 'uname!=null and uname!=\"\"'> " +
-            " and a.uname like concat(#{uname},'%') " +
+            " or a.uname like concat(#{uname},'%') " +
             "</if> " +
             "</where>" +
             "</script>")
@@ -46,13 +46,13 @@ public interface UserMapper extends BaseMapper<User> {
             "left join user_class b on a.id = b.uid " +
             "<where> " +
             "<if test = 'name!=null and name!=\"\"'> " +
-            " and a.name like concat(#{name},'%') " +
+            " or a.name like concat(#{name},'%') " +
             "</if> " +
             "<if test = 'cid!=null and cid != 0 and cid != -1'>" +
-            " and b.cid = #{cid} " +
+            " or b.cid = #{cid} " +
             "</if> " +
             "<if test = 'uname!=null and uname!=\"\"'> " +
-            " and a.uname like concat(#{uname},'%') " +
+            " or a.uname like concat(#{uname},'%') " +
             "</if> " +
             "</where> " +
             "group by a.name" +

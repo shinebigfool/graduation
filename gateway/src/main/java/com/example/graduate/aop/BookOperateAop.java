@@ -74,9 +74,9 @@ public class BookOperateAop {
             Book book = (Book) joinPoint.getArgs()[0];
             BookOperationLog log = new BookOperationLog();
             int id = book.getId();
-            if (code == 1) {
-                id = StringUtil.objectToInt(((DTO) rtv).getRetMsg());
-            }
+//            if (code == 1) {
+//                id = StringUtil.objectToInt(((DTO) rtv).getRetMsg());
+//            }
             log.setSuccessLog(name, ifSuccess, code, id, description);
             bookOperationLogService.save(log);
         }

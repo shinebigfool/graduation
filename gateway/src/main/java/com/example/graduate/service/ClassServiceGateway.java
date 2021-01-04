@@ -20,4 +20,5 @@ public interface ClassServiceGateway {
     DTO addStu(Map<String,Object> params);
     DTO removeStu(Map<String,Object> params);
     int countUser(int cid);
+    void removeUserFromAllClass(int uid);
 }

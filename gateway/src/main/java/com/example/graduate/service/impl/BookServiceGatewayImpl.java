@@ -233,6 +233,9 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         favoriteWrapper.eq(BookFavorite::getUserAccount,name);
         List<BookFavorite> favorites = bookFavoriteService.list(favoriteWrapper);
         List<Integer> bids = favorites.stream().map(BookFavorite::getBookId).collect(Collectors.toList());
+        if(bids.size()==0){
+            return new ListDTO<>(RetCodeEnum.SUCCEED.getCode(),"结果为空");
+        }
         List<Book> books = bookService.listByIds(bids);
 
         ListDTO<Book> dto = new ListDTO<>(RetCodeEnum.SUCCEED);

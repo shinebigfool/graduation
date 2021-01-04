@@ -9,10 +9,7 @@ import com.example.graduate.mapstruct.UserConverter;
 import com.example.graduate.pojo.AdminRole;
 import com.example.graduate.pojo.AdminUserRole;
 import com.example.graduate.pojo.User;
-import com.example.graduate.service.AdminRoleService;
-import com.example.graduate.service.AdminUserRoleService;
-import com.example.graduate.service.UserService;
-import com.example.graduate.service.UserServiceGateway;
+import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
@@ -38,6 +35,8 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     private AdminUserRoleService adminUserRoleService;
     @Autowired
     private AdminRoleService adminRoleService;
+    @Autowired
+    private SchoolClassService schoolClassService;
     Calendar now = Calendar.getInstance();
     Calendar birthday = Calendar.getInstance();
 
@@ -77,6 +76,10 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
             now.setTime(new Date());
             birthday.setTime(userDTO.getBirthday());
             userDTO.setAge(now.get(Calendar.YEAR) - birthday.get(Calendar.YEAR));
+            //获取用户班级信息
+            if(schoolClassService.getById(userDTO.getClassId())!=null){
+                userDTO.setClassName(schoolClassService.getById(userDTO.getClassId()).getClassName());
+            }
             // 获取用户角色信息
             LambdaQueryWrapper<AdminUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
             userRoleWrapper.eq(AdminUserRole::getUid, userDTO.getId());
@@ -142,6 +145,9 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     @Override
     public DTO login(String account, String password, boolean isRememberMe) {
         User userInDB = qryUserInDBByName(account);
+        if(userInDB==null){
+            return new DTO(RetCodeEnum.FAIL.getCode(),"无此账户！");
+        }
         if (!userInDB.isEnabled()) {
             return new DTO(RetCodeEnum.FORBIDDEN.getCode(), "您的账号已被封禁，请联系管理员");
         }
@@ -295,6 +301,7 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
 
     @Override
     public PageDTO<UserDTO> qryUsersPage(Map<String, Object> params) {
+        params.put("cid",StringUtil.objectToInt(params.get("cid")));
         int totalRow = userService.qryTotal(params);
         PageDTO<UserDTO> pageDTO= new PageDTO<>(RetCodeEnum.SUCCEED);
         params.put("totalRow", totalRow);
@@ -311,6 +318,11 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
             now.setTime(new Date());
             birthday.setTime(userDTO.getBirthday());
             userDTO.setAge(now.get(Calendar.YEAR) - birthday.get(Calendar.YEAR));
+            //获取用户班级信息
+            if(schoolClassService.getById(userDTO.getClassId())!=null){
+                userDTO.setClassName(schoolClassService.getById(userDTO.getClassId()).getClassName());
+            }
+
             // 获取用户角色信息
             LambdaQueryWrapper<AdminUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
             userRoleWrapper.eq(AdminUserRole::getUid, userDTO.getId());
@@ -328,5 +340,28 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         }
         pageDTO.setRetList(userDTOS);
         return pageDTO;
+    }
+
+    @Override
+    public boolean isStudent(int uid) {
+        int mainRole = calMainRole(qryUserRoles(uid));
+        return mainRole==1;
+    }
+
+    @Override
+    public List<Integer> qryUserRoles(int uid) {
+        LambdaQueryWrapper<AdminUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
+        userRoleWrapper.eq(AdminUserRole::getUid, uid);
+        List<Integer> rids = adminUserRoleService.list(userRoleWrapper).stream().
+                map(AdminUserRole::getRid).collect(Collectors.toList());
+
+        return rids;
+    }
+
+    @Override
+    public void changeStuClass(int uid, int cid) {
+        User inDB = userService.getById(uid);
+        inDB.setClassId(cid);
+        userService.updateById(inDB);
     }
 }

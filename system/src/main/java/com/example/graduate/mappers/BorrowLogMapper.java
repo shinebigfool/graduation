@@ -47,22 +47,22 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
             "select count(1) from borrow_log a left join book b on a.book_id=b.id " +
             "<where> " +
             " <if test = 'name!=null and name!=\"\"'> " +
-            " and a.user_account like concat('%' , #{name,jdbcType=VARCHAR}, '%') " +
+            " or a.user_account like concat('%' , #{name,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'title!=null and title!=\"\"'> " +
-            " and a.book_title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
+            " or a.book_title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'author!=null and author!=\"\"'> " +
-            " and b.author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
+            " or b.author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'cid!=null and cid != -1'> " +
-            " and b.cid = #{cid} " +
+            " or b.cid = #{cid} " +
             "</if>" +
             " <if test = 'borrowState!=null and borrowState != -1'> " +
-            " and a.state = #{borrowState} " +
+            " or a.state = #{borrowState} " +
             "</if>" +
             " <if test = 'uploadPerson!=null and uploadPerson!=\"\"'> " +
-            " and b.upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
+            " or b.upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             "</where>" +
             "</script>")
@@ -80,19 +80,19 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
             " and a.user_account like concat('%' , #{name,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'title!=null and title!=\"\"'> " +
-            " and a.book_title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
+            " or a.book_title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'author!=null and author!=\"\"'> " +
-            " and b.author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
+            " or b.author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'cid!=null and cid != -1'> " +
-            " and b.cid = #{cid} " +
+            " or b.cid = #{cid} " +
             "</if>" +
             " <if test = 'borrowState!=null and borrowState != -1'> " +
-            " and a.state = #{borrowState} " +
+            " or a.state = #{borrowState} " +
             "</if>" +
             " <if test = 'uploadPerson!=null and uploadPerson!=\"\"'> " +
-            " and b.upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
+            " or b.upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             "</where>" +
             "</script>")

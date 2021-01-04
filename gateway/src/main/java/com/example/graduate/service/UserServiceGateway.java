@@ -21,4 +21,7 @@ public interface UserServiceGateway {
     ListDTO<AdminRole> listRole();
     int calMainRole(List<Integer> rids);
     PageDTO<UserDTO> qryUsersPage(Map<String,Object> params);
+    boolean isStudent(int uid);
+    List<Integer> qryUserRoles(int uid);
+    void changeStuClass(int uid,int cid);
 }

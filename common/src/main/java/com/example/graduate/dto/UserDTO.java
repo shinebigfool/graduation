@@ -35,11 +35,13 @@ public class UserDTO extends DTO{
     private Date loginTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date registTime;
+    private int classId;
     private List<Integer> roles;
     private List<AdminRole> adminRoles;
     private String photoUrl;
     //1学生2老师3家长4访客
     private int mainRole;
+    private String className;
     public UserDTO(RetCodeEnum resultEmpty) {
         super(resultEmpty);
     }

@@ -31,7 +31,8 @@ public class ClassServiceGatewayImpl implements ClassServiceGateway {
     private UserService userService;
     @Autowired
     private AdminUserRoleService adminUserRoleService;
-
+    @Autowired
+    private UserServiceGateway userServiceGateway;
     @Override
     public ListDTO<SchoolClassDTO> qryClass(Map<String, Object> params) {
         List<SchoolClass> classes = schoolClassService.listByMap(params);
@@ -79,6 +80,10 @@ public class ClassServiceGatewayImpl implements ClassServiceGateway {
         List<Integer> uids = (List<Integer>) params.get("uids");
 
         for (Integer uid : uids) {
+            if(userServiceGateway.isStudent(uid)){
+                userServiceGateway.changeStuClass(uid,cid);
+                removeUserFromAllClass(uid);
+            }
             UserClass userClass = new UserClass();
             userClass.setCid(cid);
             userClass.setUid(uid);
@@ -102,6 +107,7 @@ public class ClassServiceGatewayImpl implements ClassServiceGateway {
         List<Integer> list = userClassService.list(wrapper).stream().
                 map(UserClass::getId).collect(Collectors.toList());
         userClassService.removeByIds(list);
+        removeStu(params);
         return new DTO(RetCodeEnum.SUCCEED);
     }
 
@@ -152,5 +158,14 @@ public class ClassServiceGatewayImpl implements ClassServiceGateway {
         LambdaQueryWrapper<UserClass> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserClass::getCid,cid);
         return userClassService.count(wrapper);
+    }
+
+    @Override
+    public void removeUserFromAllClass(int uid) {
+        LambdaQueryWrapper<UserClass> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserClass::getUid,uid);
+        userClassService.removeByIds(
+        userClassService.list(wrapper).stream().
+                map(UserClass::getId).collect(Collectors.toList()));
     }
 }
