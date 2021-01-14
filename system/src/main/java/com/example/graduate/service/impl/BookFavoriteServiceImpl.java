@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.graduate.mappers.BookFavoriteMapper;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavorite;
+import com.example.graduate.pojo.BookFavoriteCount;
 import com.example.graduate.service.BookFavoriteService;
 import org.springframework.stereotype.Service;
 
@@ -15,5 +16,10 @@ public class BookFavoriteServiceImpl extends ServiceImpl<BookFavoriteMapper, Boo
     @Override
     public List<Book> qryFavoriteBook(Map<String, Object> params) {
         return this.baseMapper.qryFavoriteBook(params);
+    }
+
+    @Override
+    public List<BookFavoriteCount> favoriteCount() {
+        return this.baseMapper.favoriteCount();
     }
 }

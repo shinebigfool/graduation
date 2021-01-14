@@ -1,6 +1,7 @@
 package com.example.graduate.service;
 
 import com.example.graduate.dto.*;
+import com.example.graduate.pojo.BookLendCount;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
 
@@ -20,4 +21,6 @@ public interface BorrowLogServiceGateway {
     BookDTO qryBorrowLogDetail(int id);
 
     Boolean isInHand(int bid,String userAccount);
+
+    ListDTO<BookLendCount> lendCount();
 }

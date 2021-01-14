@@ -2,6 +2,7 @@ package com.example.graduate.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.graduate.pojo.BookLendCount;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
 
@@ -16,4 +17,5 @@ public interface BorrowLogService extends IService<BorrowLog> {
     List<BorrowLogDetail> qryLogPage(Page<BorrowLogDetail> page,String title,String author,
                                int cid,int borrowState,
                                String uploadPerson,String name);
+    List<BookLendCount> lendCount();
 }

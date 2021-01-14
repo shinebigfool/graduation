@@ -6,6 +6,7 @@ import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.exception.NxyException;
 import com.example.graduate.pojo.Book;
+import com.example.graduate.pojo.BookFavoriteCount;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -24,4 +25,5 @@ public interface BookServiceGateway {
     DTO removeFavoriteBook(Book book);
     Boolean isFavorite(Book book);
     ListDTO<Book> qryFavoriteBook(Map<String,Object> params);
+    ListDTO<BookFavoriteCount> favoriteCount();
 }

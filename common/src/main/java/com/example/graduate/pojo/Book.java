@@ -15,23 +15,23 @@ import java.util.Date;
 @TableName("book")
 public class Book {
     @TableId(type = IdType.AUTO)
-    private int id;
-    private String cover;
-    private String title;
-    private String author;
+    protected int id;
+    protected String cover;
+    protected String title;
+    protected String author;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date publishDate;
-    private String press;
-    private String abs;
-    private int cid;
-    private int examineState;
-    private int availableState;
-    private String examinePerson;
-    private String examineNote;
-    private String uploadPerson;
+    protected Date publishDate;
+    protected String press;
+    protected String abs;
+    protected int cid;
+    protected int examineState;
+    protected int availableState;
+    protected String examinePerson;
+    protected String examineNote;
+    protected String uploadPerson;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date insertDate;
+    protected Date insertDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date updateDate;
+    protected Date updateDate;
 
 }

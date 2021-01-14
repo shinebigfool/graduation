@@ -11,6 +11,7 @@ import com.example.graduate.exception.NxyException;
 import com.example.graduate.mapstruct.BookConverter;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavorite;
+import com.example.graduate.pojo.BookFavoriteCount;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
@@ -295,6 +296,14 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         params.put("name",name);
         ListDTO<Book> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
         dto.setRetList(bookFavoriteService.qryFavoriteBook(params));
+        return dto;
+    }
+
+    @Override
+    public ListDTO<BookFavoriteCount> favoriteCount() {
+        ListDTO<BookFavoriteCount> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
+        List<BookFavoriteCount> bookFavoriteCounts = bookFavoriteService.favoriteCount();
+        dto.setRetList(bookFavoriteCounts);
         return dto;
     }
 

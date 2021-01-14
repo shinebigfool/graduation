@@ -3,6 +3,7 @@ package com.example.graduate.mappers;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavorite;
+import com.example.graduate.pojo.BookFavoriteCount;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -31,4 +32,19 @@ public interface BookFavoriteMapper extends BaseMapper<BookFavorite> {
             "</where>" +
             "</script>")
     List<Book> qryFavoriteBook(Map<String,Object> params);
+    @Select("select a.* ,b.favoriteCount from book a \n" +
+            "right join \n" +
+            "(\n" +
+            "SELECT\n" +
+            "\tbook_id,count( DISTINCT user_account ) favoriteCount\n" +
+            "FROM\n" +
+            "\tbook_favorite \n" +
+            "GROUP BY\n" +
+            "\tbook_id\n" +
+            "ORDER BY\n" +
+            "\tfavoriteCount desc\n" +
+            ")\tb\n" +
+            "on a.id = b.book_id " +
+            "limit 10")
+    List<BookFavoriteCount> favoriteCount();
 }

@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.*;
 import com.example.graduate.mapstruct.BookConverter;
-import com.example.graduate.pojo.Book;
-import com.example.graduate.pojo.BookFavorite;
-import com.example.graduate.pojo.BorrowLog;
-import com.example.graduate.pojo.BorrowLogDetail;
+import com.example.graduate.pojo.*;
 import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
@@ -16,6 +13,9 @@ import com.example.graduate.utils.StringUtil;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -33,6 +33,7 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     @Autowired
     private BookServiceGateway bookServiceGateway;
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, timeout = 36000, rollbackFor = Exception.class)
     public DTO lendBook(int bid) {
         String name = PresentUserUtils.qryPresentUserAccount();
         if(StringUtil.isBlank(name)){
@@ -61,6 +62,7 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, timeout = 36000, rollbackFor = Exception.class)
     public DTO returnBook(int bid,String name) {
         if(PresentUserUtils.qryPresentUserAccount().equals("")){
             return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
@@ -187,5 +189,12 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
             return false;
         }
         return null;
+    }
+
+    @Override
+    public ListDTO<BookLendCount> lendCount() {
+        ListDTO<BookLendCount> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
+        dto.setRetList(borrowLogService.lendCount());
+        return dto;
     }
 }

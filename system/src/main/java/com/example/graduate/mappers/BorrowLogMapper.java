@@ -2,6 +2,7 @@ package com.example.graduate.mappers;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.graduate.pojo.BookLendCount;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
 import org.apache.ibatis.annotations.Mapper;
@@ -103,4 +104,14 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
                                @Param("borrowState") int borrowState,
                                @Param("uploadPerson") String uploadPerson,
                                @Param("name") String name);
+    @Select("select a.*,b.lendCount from book a\n" +
+            "right join \n" +
+            "(\n" +
+            "select book_id,count(1) lendCount from borrow_log \n" +
+            "group by book_id\n" +
+            "order by lendCount desc\n" +
+            "limit 10\n" +
+            ") b\n" +
+            "on a.id = b.book_id")
+    List<BookLendCount> lendCount();
 }

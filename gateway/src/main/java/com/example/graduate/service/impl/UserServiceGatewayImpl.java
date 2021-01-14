@@ -22,6 +22,9 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -252,6 +255,7 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, timeout = 36000, rollbackFor = Exception.class)
     public DTO deleteUserByIds(int id) {
         //先删角色用户映射表
         LambdaQueryWrapper<AdminUserRole> wrapper = new LambdaQueryWrapper<>();

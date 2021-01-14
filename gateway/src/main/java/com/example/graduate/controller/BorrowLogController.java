@@ -1,6 +1,7 @@
 package com.example.graduate.controller;
 
 import com.example.graduate.dto.*;
+import com.example.graduate.pojo.BookLendCount;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
 import com.example.graduate.service.BorrowLogServiceGateway;
@@ -98,5 +99,11 @@ public class BorrowLogController {
     @ApiImplicitParam(name = "id",value = "日志id",required = true,paramType = "query")
     BookDTO qryBorrowLogDetail(@RequestParam("id") int id){
         return borrowLogServiceGateway.qryBorrowLogDetail(id);
+    }
+
+    @GetMapping("/lendCount")
+    @ApiOperation("借阅榜")
+    ListDTO<BookLendCount> lendCount(){
+        return borrowLogServiceGateway.lendCount();
     }
 }

@@ -16,6 +16,7 @@ import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.exception.NxyException;
 import com.example.graduate.pojo.Book;
+import com.example.graduate.pojo.BookFavoriteCount;
 import com.example.graduate.pojo.CalculateRule;
 import com.example.graduate.service.BookServiceGateway;
 import com.example.graduate.service.CalculateRuleService;
@@ -181,7 +182,11 @@ public class BookController {
     ListDTO<Book> qryFavoriteBook(@ApiIgnore @RequestParam Map<String, Object> params){
         return bookServiceGateway.qryFavoriteBook(params);
     }
-
+    @GetMapping("/favoriteCount")
+    @ApiOperation(value = "收藏榜")
+    ListDTO<BookFavoriteCount> favoriteCount(){
+        return bookServiceGateway.favoriteCount();
+    }
     @GetMapping("/testEngine")
     @ApiIgnore
     DTO testEngine(@RequestParam int id){

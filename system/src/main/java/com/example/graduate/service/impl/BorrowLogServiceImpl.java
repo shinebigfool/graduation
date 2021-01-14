@@ -3,6 +3,7 @@ package com.example.graduate.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.graduate.mappers.BorrowLogMapper;
+import com.example.graduate.pojo.BookLendCount;
 import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.pojo.BorrowLogDetail;
 import com.example.graduate.service.BorrowLogService;
@@ -28,5 +29,10 @@ public class BorrowLogServiceImpl extends ServiceImpl<BorrowLogMapper, BorrowLog
                                       int cid, int borrowState,
                                       String uploadPerson, String name) {
         return this.baseMapper.qryLogPage(page,title,author,cid,borrowState,uploadPerson,name);
+    }
+
+    @Override
+    public List<BookLendCount> lendCount() {
+        return this.baseMapper.lendCount();
     }
 }

@@ -15,6 +15,9 @@ import com.example.graduate.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -62,6 +65,7 @@ public class ClassServiceGatewayImpl implements ClassServiceGateway {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, timeout = 36000, rollbackFor = Exception.class)
     public DTO removeClass(Map<String, Object> params) {
         //先删映射，后删班级
         int cid = StringUtil.objectToInt(params.get("id"));
@@ -71,6 +75,13 @@ public class ClassServiceGatewayImpl implements ClassServiceGateway {
                 map(UserClass::getId).collect(Collectors.toList());
         userClassService.removeByIds(ids);
         schoolClassService.removeById(cid);
+        LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
+        userWrapper.eq(User::getClassId,cid);
+        List<User> users = userService.list(userWrapper);
+        for (User user : users) {
+            user.setClassId(-1);
+        }
+        userService.updateBatchById(users);
         return new DTO(RetCodeEnum.SUCCEED);
     }
 
