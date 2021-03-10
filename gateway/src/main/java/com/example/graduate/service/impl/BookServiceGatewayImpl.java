@@ -12,17 +12,13 @@ import com.example.graduate.mapstruct.BookConverter;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavorite;
 import com.example.graduate.pojo.BookFavoriteCount;
-import com.example.graduate.pojo.BorrowLog;
 import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -43,6 +39,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
 
     @Autowired
     private BorrowLogServiceGateway borrowLogServiceGateway;
+
     @Override
     public PageDTO<Book> qryBook(Map<String, Object> params) {
         PageDTO<Book> pageDTO = new PageDTO<>(RetCodeEnum.SUCCEED);
@@ -96,7 +93,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         Book book = bookService.getById(bid);
         //借出状态
         if (book.getAvailableState() == 0 && book.getExamineState() == 1) {
-            return new DTO(RetCodeEnum.FAIL.getCode(),"此书外接中，下架失败");
+            return new DTO(RetCodeEnum.FAIL.getCode(), "此书外接中，下架失败");
         }
         book.setAvailableState(3);
         try {
@@ -208,18 +205,18 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
             return new BookDTO(RetCodeEnum.FAIL.getCode(), "请先登录");
         }
         Book book = bookService.getById(id);
-        Boolean isInHand = borrowLogServiceGateway.isInHand(id,name);
-        if(isInHand==null){
-            return new BookDTO(RetCodeEnum.EXCEPTION.getCode(),"当前用户借书记录存在异常！");
+        Boolean isInHand = borrowLogServiceGateway.isInHand(id, name);
+        if (isInHand == null) {
+            return new BookDTO(RetCodeEnum.EXCEPTION.getCode(), "当前用户借书记录存在异常！");
         }
         BookDTO bookDTO = BookConverter.INSTANCE.domain2dto(book);
-        if(isFavorite(book)){
+        if (isFavorite(book)) {
             bookDTO.setFavorite(1);
-        }else {
+        } else {
             bookDTO.setFavorite(0);
         }
 
-        bookDTO.setIsInHand(isInHand?2:1);
+        bookDTO.setIsInHand(isInHand ? 2 : 1);
         bookDTO.setResult(RetCodeEnum.SUCCEED);
         return bookDTO;
     }
@@ -227,15 +224,15 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     @Override
     public ListDTO<Book> qryFavoriteBook() {
         String name = PresentUserUtils.qryPresentUserAccount();
-        if(StringUtil.isBlank(name)){
-            return new ListDTO<>(RetCodeEnum.FAIL.getCode(),"请先登录");
+        if (StringUtil.isBlank(name)) {
+            return new ListDTO<>(RetCodeEnum.FAIL.getCode(), "请先登录");
         }
         LambdaQueryWrapper<BookFavorite> favoriteWrapper = new LambdaQueryWrapper<>();
-        favoriteWrapper.eq(BookFavorite::getUserAccount,name);
+        favoriteWrapper.eq(BookFavorite::getUserAccount, name);
         List<BookFavorite> favorites = bookFavoriteService.list(favoriteWrapper);
         List<Integer> bids = favorites.stream().map(BookFavorite::getBookId).collect(Collectors.toList());
-        if(bids.size()==0){
-            return new ListDTO<>(RetCodeEnum.SUCCEED.getCode(),"结果为空");
+        if (bids.size() == 0) {
+            return new ListDTO<>(RetCodeEnum.SUCCEED.getCode(), "结果为空");
         }
         List<Book> books = bookService.listByIds(bids);
 
@@ -247,56 +244,66 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     @Override
     public DTO addFavoriteBook(Book book) {
         String name = PresentUserUtils.qryPresentUserAccount();
-        if(StringUtil.isBlank(name)){
-            return new DTO(RetCodeEnum.FAIL.getCode(),"请先登录");
+        if (StringUtil.isBlank(name)) {
+            return new DTO(RetCodeEnum.FAIL.getCode(), "请先登录");
         }
-        if(isFavorite(book)){
-            return new DTO(RetCodeEnum.SUCCEED.getCode(),"已在收藏夹");
+        if (isFavorite(book)) {
+            return new DTO(RetCodeEnum.SUCCEED.getCode(), "已在收藏夹");
         }
         BookFavorite favorite = new BookFavorite();
         favorite.setBookId(book.getId());
         favorite.setBookTitle(book.getTitle());
         favorite.setUserAccount(name);
         bookFavoriteService.save(favorite);
-        return new DTO(RetCodeEnum.SUCCEED.getCode(),"收藏成功");
+        return new DTO(RetCodeEnum.SUCCEED.getCode(), "收藏成功");
     }
 
     @Override
     public DTO removeFavoriteBook(Book book) {
         String name = PresentUserUtils.qryPresentUserAccount();
         LambdaQueryWrapper<BookFavorite> favoriteWrapper = new LambdaQueryWrapper<>();
-        favoriteWrapper.eq(BookFavorite::getBookId,book.getId()).eq(BookFavorite::getUserAccount,name);
+        favoriteWrapper.eq(BookFavorite::getBookId, book.getId()).eq(BookFavorite::getUserAccount, name);
         BookFavorite one = bookFavoriteService.getOne(favoriteWrapper);
-        if(one!=null){
+        if (one != null) {
             bookFavoriteService.removeById(one.getId());
-            return new DTO(RetCodeEnum.SUCCEED.getCode(),"取消收藏成功");
+            return new DTO(RetCodeEnum.SUCCEED.getCode(), "取消收藏成功");
         }
-        return new DTO(RetCodeEnum.SUCCEED.getCode(),"您的收藏夹中无此书");
+        return new DTO(RetCodeEnum.SUCCEED.getCode(), "您的收藏夹中无此书");
     }
 
     @Override
     public Boolean isFavorite(Book book) {
         String name = PresentUserUtils.qryPresentUserAccount();
-        if(StringUtil.isBlank(name)){
+        if (StringUtil.isBlank(name)) {
             return false;
         }
         LambdaQueryWrapper<BookFavorite> favoriteWrapper = new LambdaQueryWrapper<>();
-        favoriteWrapper.eq(BookFavorite::getBookId,book.getId()).eq(BookFavorite::getUserAccount,name);
+        favoriteWrapper.eq(BookFavorite::getBookId, book.getId()).eq(BookFavorite::getUserAccount, name);
         int count = bookFavoriteService.count(favoriteWrapper);
 
-        return count!=0;
+        return count != 0;
     }
 
     @Override
-    public ListDTO<Book> qryFavoriteBook(Map<String, Object> params) {
+    public PageDTO<Book> qryFavoriteBook(Map<String, Object> params) {
         String name = PresentUserUtils.qryPresentUserAccount();
-        if(StringUtil.isBlank(name)){
-            return new ListDTO<>(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
+        if (StringUtil.isBlank(name)) {
+            return new PageDTO<>(RetCodeEnum.FORBIDDEN.getCode(), "请先登录");
         }
+        PageDTO<Book> pageDTO = new PageDTO<>(RetCodeEnum.SUCCEED);
         params.put("name",name);
-        ListDTO<Book> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
-        dto.setRetList(bookFavoriteService.qryFavoriteBook(params));
-        return dto;
+        int totalRow = bookFavoriteService.countFavorite(params);
+        params.put("totalRow", totalRow);
+        int size = PageUtil.transParam2Page(params, pageDTO);
+        int current = StringUtil.objectToInt(params.get("current"));
+        Page<Book> page = new Page<>(current, size);
+        String title = StringUtil.parseString(params.get("title"));
+        String author = StringUtil.parseString(params.get("author"));
+        String uploadPerson = StringUtil.parseString(params.get("uploadPerson"));
+        int cid = StringUtil.objectToInt(params.get("cid"));
+        List<Book> books = bookFavoriteService.qryFavoriteByPage(page, title, author, cid, uploadPerson, name);
+        pageDTO.setRetList(books);
+        return pageDTO;
     }
 
     @Override

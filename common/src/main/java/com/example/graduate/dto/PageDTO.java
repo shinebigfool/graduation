@@ -29,7 +29,9 @@ public class  PageDTO<E> extends DTO {
         super(retCode, retMsg);
         this.pageSize = pageSize;
     }
-
+    public PageDTO(String code,String msg){
+        super(code,msg);
+    }
     @SuppressWarnings("unchecked")
     public void add(Map<String,Object> retMap) {
         this.setRetList((List<E>) retMap.get("list"));

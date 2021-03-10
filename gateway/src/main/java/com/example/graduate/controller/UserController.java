@@ -37,7 +37,7 @@ public class UserController {
 
     @ApiOperation(value = "测试Swagger")
     @GetMapping("/test")
-    @RequiresRoles(value = {"super", "sysAdmin", "operations"}, logical = Logical.OR)
+    @RequiresRoles(value = {"admin", "contentManager"}, logical = Logical.OR)
     public Integer test() {
         return 1024;
     }

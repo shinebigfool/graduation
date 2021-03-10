@@ -94,17 +94,14 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     }
 
     @Override
-    public ListDTO qryBorrowLog(Map<String, Object> params) {
+    public PageDTO<BorrowLogDetail> qryBorrowLog(Map<String, Object> params) {
         String name=PresentUserUtils.qryPresentUserAccount();
 
         if (StringUtil.isBlank(name)){
-            return new ListDTO(RetCodeEnum.FAIL.getCode(),"请先登录");
+            return new PageDTO<>(RetCodeEnum.FAIL.getCode(),"请先登录");
         }
         params.put("name",name);
-        List<BorrowLogDetail> borrowLogDetails = borrowLogService.qryBorrowLogDetail(params);
-        ListDTO listDTO = new ListDTO(RetCodeEnum.SUCCEED);
-        listDTO.setRetList(borrowLogDetails);
-        return listDTO;
+        return this.qryWholeLog(params);
     }
 
     @Override

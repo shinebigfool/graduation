@@ -19,4 +19,13 @@
 
 swagger地址：http://localhost:2048/swagger-ui.html#/
 
+打包：用maven的package命令，jar包在gateway模块下的target文件夹中。部署Linux时将application.yml配成prod
+
+Linux开放2048端口：      
+
+firewall-cmd --zone=public --add-port=2048/tcp --permanent
+
+firewall-cmd --reload
+
+
 

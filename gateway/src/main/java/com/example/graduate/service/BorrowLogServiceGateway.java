@@ -12,7 +12,7 @@ public interface BorrowLogServiceGateway {
 
     DTO returnBook(int bid,String name);
 
-    ListDTO qryBorrowLog(Map<String,Object> params);
+    PageDTO<BorrowLogDetail> qryBorrowLog(Map<String,Object> params);
 
     PageDTO<BorrowLogDetail> qryWholeLog(Map<String,Object> params);
 

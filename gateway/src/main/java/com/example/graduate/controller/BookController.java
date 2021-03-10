@@ -29,6 +29,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
@@ -59,6 +60,13 @@ public class BookController {
     private CalculateRuleService calculateRuleService;
     @Autowired
     private RuleServiceGateway ruleServiceGateway;
+
+    @Value("${image.baseImagePath}")
+    private String baseImagePath;
+
+    @Value("${image.baseImageUrl}")
+    private String baseImageUrl;
+
     @GetMapping("/page")
     @ApiOperation(value = "分页查询图书(String模糊查，int精准查)")
     @ApiImplicitParams({
@@ -116,8 +124,8 @@ public class BookController {
     @ApiOperation(value = "上传图片封面")
     @OperationLogAnnotation(description = "修改图书封面",type = LogOperationType.UPDATE)
     DTO coversUpload(MultipartFile file) {
-        String folder = "D:/pic";
-        File imageFolder = new File(folder);
+        System.out.println("path:"+baseImagePath+",url:"+baseImageUrl);
+        File imageFolder = new File(baseImagePath);
         File f = new File(imageFolder, StringUtil.getRandomString(6) + file.getOriginalFilename()
                 .substring(file.getOriginalFilename().length() - 4));
         if (!f.getParentFile().exists())
@@ -128,7 +136,7 @@ public class BookController {
             e.printStackTrace();
             return new DTO(RetCodeEnum.FAIL);
         }
-        String imgURL = "http://localhost:2048/api/file/" + f.getName();
+        String imgURL = baseImageUrl + f.getName();
         System.out.println(imgURL);
         return new DTO(RetCodeEnum.SUCCEED.getCode(), imgURL);
     }
@@ -174,12 +182,14 @@ public class BookController {
     @GetMapping("/searchFavorite")
     @ApiOperation(value = "模糊查收藏图书")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "current", value = "当前页面", required = true, paramType = "query"),
+            @ApiImplicitParam(name = "size", value = "页面大小", required = true, paramType = "query"),
             @ApiImplicitParam(name = "title", value = "标题", required = false, paramType = "query"),
             @ApiImplicitParam(name = "author", value = "作者", required = false, paramType = "query"),
             @ApiImplicitParam(name = "cid", value = "种类ID", required = false, paramType = "query"),
             @ApiImplicitParam(name = "uploadPerson", value = "上传者", required = false, paramType = "query")
     })
-    ListDTO<Book> qryFavoriteBook(@ApiIgnore @RequestParam Map<String, Object> params){
+    PageDTO<Book> qryFavoriteBook(@ApiIgnore @RequestParam Map<String, Object> params){
         return bookServiceGateway.qryFavoriteBook(params);
     }
     @GetMapping("/favoriteCount")

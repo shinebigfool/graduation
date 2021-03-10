@@ -50,6 +50,8 @@ public class BorrowLogController {
     @GetMapping("log")
     @ApiOperation(value = "查询当前用户的借书记录")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "current", value = "当前页面", required = true, paramType = "query"),
+            @ApiImplicitParam(name = "size", value = "页面大小", required = true, paramType = "query"),
             @ApiImplicitParam(name = "bookId", value = "图书id", paramType = "query", required = false),
             @ApiImplicitParam(name = "title", value = "图书标题(模糊)", paramType = "query", required = false),
             @ApiImplicitParam(name = "author", value = "作者", required = false, paramType = "query"),
@@ -57,7 +59,7 @@ public class BorrowLogController {
             @ApiImplicitParam(name = "borrowState", value = "是否已归还", required = false, paramType = "query"),
             @ApiImplicitParam(name = "uploadPerson", value = "上传者", required = false, paramType = "query")
     })
-    ListDTO qryBorrowLog(@ApiIgnore @RequestParam Map<String, Object> params) {
+    PageDTO<BorrowLogDetail> qryBorrowLog(@ApiIgnore @RequestParam Map<String, Object> params) {
         return borrowLogServiceGateway.qryBorrowLog(params);
     }
 

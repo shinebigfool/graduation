@@ -24,6 +24,6 @@ public interface BookServiceGateway {
     DTO addFavoriteBook(Book book);
     DTO removeFavoriteBook(Book book);
     Boolean isFavorite(Book book);
-    ListDTO<Book> qryFavoriteBook(Map<String,Object> params);
+    PageDTO<Book> qryFavoriteBook(Map<String,Object> params);
     ListDTO<BookFavoriteCount> favoriteCount();
 }
