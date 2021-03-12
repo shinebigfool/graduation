@@ -30,13 +30,13 @@ public interface UserMapper extends BaseMapper<User> {
             "left join user_class b on a.id = b.uid " +
             "<where> " +
             "<if test = 'name!=null and name!=\"\"'> " +
-            " or a.name like concat(#{name},'%') " +
+            " and a.name like concat(#{name},'%') " +
             "</if> " +
             "<if test = 'cid!=null and cid != 0 and cid != -1'>" +
-            " or b.cid = #{cid} " +
+            " and b.cid = #{cid} " +
             "</if> " +
             "<if test = 'uname!=null and uname!=\"\"'> " +
-            " or a.uname like concat(#{uname},'%') " +
+            " and a.uname like concat(#{uname},'%') " +
             "</if> " +
             "</where>" +
             "</script>")
@@ -46,16 +46,15 @@ public interface UserMapper extends BaseMapper<User> {
             "left join user_class b on a.id = b.uid " +
             "<where> " +
             "<if test = 'name!=null and name!=\"\"'> " +
-            " or a.name like concat(#{name},'%') " +
+            " and a.name like concat(#{name},'%') " +
             "</if> " +
             "<if test = 'cid!=null and cid != 0 and cid != -1'>" +
-            " or b.cid = #{cid} " +
+            " and b.cid = #{cid} " +
             "</if> " +
             "<if test = 'uname!=null and uname!=\"\"'> " +
-            " or a.uname like concat(#{uname},'%') " +
+            " and a.uname like concat(#{uname},'%') " +
             "</if> " +
             "</where> " +
-            "group by a.name" +
             "</script>")
     List<User> qryUserPage(Page<User> page,@Param("name") String name,@Param("cid") int cid,@Param("uname")String uname);
 }
