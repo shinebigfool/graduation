@@ -33,6 +33,7 @@ public class BookDTO extends DTO{
     private String borrowPerson;
     //是否未归还
     private int isInHand;
+    private String onlineUrl;
     public BookDTO(){
         super();
     }

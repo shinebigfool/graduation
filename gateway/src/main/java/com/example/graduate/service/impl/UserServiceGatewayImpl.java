@@ -244,6 +244,7 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         }
         List<AdminRole> roles = adminRoleService.listByIds(rids);
         List<String> roleNames = roles.stream().map(AdminRole::getName).collect(Collectors.toList());
+
         RoleDTO roleDTO = new RoleDTO(RetCodeEnum.SUCCEED);
         //设置头像url
         roleDTO.setAvatar(one.getPhotoUrl());
@@ -251,6 +252,7 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         roleDTO.setName(one.getUname());
         //角色列表
         roleDTO.setRoles(roleNames);
+        roleDTO.setMainRole(calMainRole(rids));
         return roleDTO;
     }
 

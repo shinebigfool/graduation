@@ -14,6 +14,7 @@ public class RoleDTO extends DTO{
     private String avatar;
     //用户名
     private String name;
+    private Integer mainRole;
     public RoleDTO(){
         super();
     }

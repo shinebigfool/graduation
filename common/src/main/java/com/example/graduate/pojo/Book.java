@@ -33,5 +33,6 @@ public class Book {
     protected Date insertDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected Date updateDate;
+    protected String onlineUrl;
 
 }

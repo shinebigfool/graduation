@@ -25,10 +25,10 @@ public interface BookMapper extends BaseMapper<Book> {
             " <if test = 'cid!=null and cid != -1 and cid !=\"\" and cid != 0'> " +
             " and cid = #{cid} " +
             "</if>" +
-            " <if test = 'examineState!=null and examineState != -1'> " +
+            " <if test = 'examineState!=null and examineState != -1 and examineState!=\"\"'> " +
             " and examine_state = #{examineState} " +
             "</if>" +
-            " <if test = 'availableState!=null and availableState != -1'> " +
+            " <if test = 'availableState!=null and availableState != -1 and availableState!=\"\"'> " +
             " and available_state = #{availableState} " +
             "</if>" +
             " <if test = 'examinePerson!=null and author!=\"\"'> " +
@@ -67,8 +67,11 @@ public interface BookMapper extends BaseMapper<Book> {
             "</if>" +
             "</where>" +
             "</script>")
-    List<Book> qryBookByPage(Page<Book> page,@Param("title") String title,@Param("author") String author,
-                             @Param("cid") int cid, @Param("examineState") int examineState,
+    List<Book> qryBookByPage(Page<Book> page,
+                             @Param("title") String title,
+                             @Param("author") String author,
+                             @Param("cid") int cid,
+                             @Param("examineState") int examineState,
                              @Param("availableState") int availableState,
                              @Param("examinePerson") String examinePerson,
                              @Param("uploadPerson") String uploadPerson);

@@ -42,6 +42,8 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
 
     @Override
     public PageDTO<Book> qryBook(Map<String, Object> params) {
+        int examineState = StringUtil.objectToInt(params.get("examineState"));
+        int availableState = StringUtil.objectToInt(params.get("availableState"));
         PageDTO<Book> pageDTO = new PageDTO<>(RetCodeEnum.SUCCEED);
         // 查询符合条件的书的总数
         int totalRow = bookService.qryTotalRow(params);
@@ -53,8 +55,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         String title = StringUtil.parseString(params.get("title"));
         String author = StringUtil.parseString(params.get("author"));
         int cid = StringUtil.objectToInt(params.get("cid"));
-        int examineState = StringUtil.objectToInt(params.get("examineState"));
-        int availableState = StringUtil.objectToInt(params.get("availableState"));
+
         String examinePerson = StringUtil.parseString(params.get("examinePerson"));
         String uploadPerson = StringUtil.parseString(params.get("uploadPerson"));
         List<Book> books = bookService.qryBookByPage(bookPage, title, author, cid, examineState,
@@ -159,6 +160,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         inDB.setAvailableState(0);
         inDB.setInsertDate(book.getInsertDate());
         inDB.setExamineState(0);
+        inDB.setOnlineUrl(book.getOnlineUrl());
         try {
             bookService.updateById(inDB);
         } catch (Exception e) {
