@@ -26,9 +26,14 @@ swagger:
   # swagger的开关(线上环境直接关闭swagger的访问权限即可)
   enable: true
 # 配置sql打印日志
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#mybatis-plus:
+#  configuration:
+#    log-impl: com.example.graduate.config.MybatisPlusOutImpl
 image:
   baseImagePath: D:/pic/
   baseImageUrl: http://localhost:2048/api/file/
+# 在application.yml 中增加配置，指定 mapper 文件所在的包，进入DEBUG模式
+logging:
+  level:
+    com.example.graduate.mappers: debug
+
