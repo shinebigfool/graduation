@@ -26,9 +26,9 @@ public class BorrowLogServiceImpl extends ServiceImpl<BorrowLogMapper, BorrowLog
 
     @Override
     public List<BorrowLogDetail> qryLogPage(Page<BorrowLogDetail> page, String title, String author,
-                                      int cid, int borrowState,
-                                      String uploadPerson, String name) {
-        return this.baseMapper.qryLogPage(page,title,author,cid,borrowState,uploadPerson,name);
+                                            int cid, int borrowState,
+                                            String uploadPerson, String name, int overDue) {
+        return this.baseMapper.qryLogPage(page,title,author,cid,borrowState,uploadPerson,name, overDue);
     }
 
     @Override

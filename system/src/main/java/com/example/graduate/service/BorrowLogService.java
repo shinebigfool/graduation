@@ -16,6 +16,6 @@ public interface BorrowLogService extends IService<BorrowLog> {
 
     List<BorrowLogDetail> qryLogPage(Page<BorrowLogDetail> page,String title,String author,
                                int cid,int borrowState,
-                               String uploadPerson,String name);
+                               String uploadPerson,String name,int overDue);
     List<BookLendCount> lendCount();
 }

@@ -25,4 +25,6 @@ public class BorrowLogDetail {
     private String author;
     private int cid;
     private String uploadPerson;
+    private int overDue;
+    private int point;
 }

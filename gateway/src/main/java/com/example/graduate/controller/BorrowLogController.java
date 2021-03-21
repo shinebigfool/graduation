@@ -57,7 +57,8 @@ public class BorrowLogController {
             @ApiImplicitParam(name = "author", value = "作者", required = false, paramType = "query"),
             @ApiImplicitParam(name = "cid", value = "种类ID", required = false, paramType = "query"),
             @ApiImplicitParam(name = "borrowState", value = "是否已归还", required = false, paramType = "query"),
-            @ApiImplicitParam(name = "uploadPerson", value = "上传者", required = false, paramType = "query")
+            @ApiImplicitParam(name = "uploadPerson", value = "上传者", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "overDue",value = "是否超期",required = false,paramType = "query")
     })
     PageDTO<BorrowLogDetail> qryBorrowLog(@ApiIgnore @RequestParam Map<String, Object> params) {
         return borrowLogServiceGateway.qryBorrowLog(params);

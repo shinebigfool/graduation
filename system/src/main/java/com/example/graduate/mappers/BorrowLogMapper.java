@@ -17,7 +17,7 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
     @Select("<script>" +
             "select a.id id, a.borrow_date,a.user_account,a.book_id,a.total_time," +
             "a.book_title,a.need_return_date,\n" +
-            "a.note,a.state,a.return_date,b.author,b.cid,b.upload_person " +
+            "a.note,a.state,a.return_date,b.author,b.cid,b.upload_person,datediff(now(),a.borrow_date) overDue " +
             "from borrow_log a\n" +
             "LEFT JOIN book b\n" +
             "on a.book_id = b.id " +
@@ -65,6 +65,9 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
             " <if test = 'uploadPerson!=null and uploadPerson!=\"\"'> " +
             " and b.upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
             "</if>" +
+            "<if test = 'overDue!=null'> " +
+            " and datediff(now(),a.borrow_date)>20 and a.state = 2" +
+            "</if>" +
             "</where>" +
             "</script>")
     int qryTotalRow(Map<String,Object> params);
@@ -72,7 +75,7 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
     @Select("<script>" +
             "select a.id id, a.borrow_date,a.user_account,a.book_id,a.total_time," +
             "a.book_title,a.need_return_date,\n" +
-            "a.note,a.state,a.return_date,b.author,b.cid,b.upload_person " +
+            "a.note,a.state,a.return_date,b.author,b.cid,b.upload_person,datediff(now(),a.borrow_date)-20 overDue  " +
             "from borrow_log a\n" +
             "LEFT JOIN book b\n" +
             "on a.book_id = b.id " +
@@ -95,6 +98,9 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
             " <if test = 'uploadPerson!=null and uploadPerson!=\"\"'> " +
             " and b.upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
             "</if>" +
+            "<if test = 'overDue!=null and overDue == 1'> " +
+            " and datediff(now(),a.borrow_date)>20 and a.state = 2" +
+            "</if>" +
             "</where>" +
             "</script>")
     List<BorrowLogDetail> qryLogPage(Page<BorrowLogDetail> page,
@@ -103,7 +109,8 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
                                @Param("cid") int cid,
                                @Param("borrowState") int borrowState,
                                @Param("uploadPerson") String uploadPerson,
-                               @Param("name") String name);
+                               @Param("name") String name,
+                               @Param("overDue")int overDue);
     @Select("select a.*,b.lendCount from book a\n" +
             "right join \n" +
             "(\n" +

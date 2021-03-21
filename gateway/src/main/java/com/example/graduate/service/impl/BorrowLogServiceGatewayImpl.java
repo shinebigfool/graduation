@@ -10,7 +10,6 @@ import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
-import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -24,6 +23,8 @@ import java.util.Map;
 
 @Service
 public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
+    @Autowired
+    private AffairServiceGateway affairServiceGateway;
     @Autowired
     private BookService bookService;
     @Autowired
@@ -82,6 +83,13 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
         //更新借书状态
         BorrowLog log = borrowLogs.get(0);
         int totalTime = (int) ((new Date().getTime()-log.getBorrowDate().getTime())/86400000);
+        if(totalTime>20){
+            Affair affair = new Affair();
+            affair.setAffairDetail(5+(totalTime-20)/8);
+            affair.setAffairType(1);
+            affair.setBookInfo(log.getBookTitle());
+            affairServiceGateway.addAffair(affair);
+        }
         log.setTotalTime(totalTime);
         log.setReturnDate(new Date());
         log.setState(1);
@@ -96,12 +104,15 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     @Override
     public PageDTO<BorrowLogDetail> qryBorrowLog(Map<String, Object> params) {
         String name=PresentUserUtils.qryPresentUserAccount();
-
         if (StringUtil.isBlank(name)){
             return new PageDTO<>(RetCodeEnum.FAIL.getCode(),"请先登录");
         }
         params.put("name",name);
-        return this.qryWholeLog(params);
+        PageDTO<BorrowLogDetail> dto = this.qryWholeLog(params);
+        if(params.get("overDue")!=null) {
+            dto.getRetList().forEach(e -> e.setPoint(5 + e.getOverDue() / 8));
+        }
+        return dto;
     }
 
     @Override
@@ -118,8 +129,9 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
         int borrowState = StringUtil.objectToInt(params.get("borrowState"));
         String uploadPerson = StringUtil.parseString(params.get("uploadPerson"));
         String name = StringUtil.parseString(params.get("name"));
+        int overDue = StringUtil.objectToInt(params.get("overDue"));
         List<BorrowLogDetail> list = borrowLogService.qryLogPage(borrowLogPage, title,
-                author, cid, borrowState, uploadPerson, name);
+                author, cid, borrowState, uploadPerson, name, overDue);
         if(list.size()==0){
             return new PageDTO<>(RetCodeEnum.RESULT_EMPTY);
         }
