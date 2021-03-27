@@ -33,6 +33,8 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     private BookFavoriteService bookFavoriteService;
     @Autowired
     private BookServiceGateway bookServiceGateway;
+    @Autowired
+    private UserPointServiceGateway userPointServiceGateway;
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, timeout = 36000, rollbackFor = Exception.class)
     public DTO lendBook(int bid) {
@@ -46,6 +48,14 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
         }
         if (book.getAvailableState()==0||book.getAvailableState()==3){
             return new DTO(RetCodeEnum.FAIL.getCode(),"该书暂无法借阅");
+        }
+        String uploader = book.getUploadPerson();
+        UserPoint userPoint = userPointServiceGateway.getByName(uploader);
+        if(userPoint!=null){
+            userPoint.setPoint(userPoint.getPoint()+5);
+            userPointServiceGateway.modUserPoint(userPoint,book.getTitle()+"被借阅+5分");
+        } else {
+            return new DTO(RetCodeEnum.FAIL.getCode(),"积分查询失败请联系管理员");
         }
         BorrowLog borrowLog = new BorrowLog();
         Date now = new Date();
@@ -80,6 +90,8 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
             return new DTO(RetCodeEnum.FAIL.getCode(),"您当前有"+borrowLogs.size()+"条对应借书记录" +
                     "请联系管理员进行处理");
         }
+
+
         //更新借书状态
         BorrowLog log = borrowLogs.get(0);
         int totalTime = (int) ((new Date().getTime()-log.getBorrowDate().getTime())/86400000);
@@ -87,8 +99,13 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
             Affair affair = new Affair();
             affair.setAffairDetail(5+(totalTime-20)/8);
             affair.setAffairType(1);
+            affair.setNote(log.getBookTitle()+"超期");
             affair.setBookInfo(log.getBookTitle());
             affairServiceGateway.addAffair(affair);
+        }else {
+            UserPoint userPoint = userPointServiceGateway.getByName(name);
+            userPoint.setPoint(userPoint.getPoint()-3);
+            userPointServiceGateway.modUserPoint(userPoint,"准时归还借阅图书-3分");
         }
         log.setTotalTime(totalTime);
         log.setReturnDate(new Date());

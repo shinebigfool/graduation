@@ -7,8 +7,10 @@ import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.pojo.Affair;
+import com.example.graduate.pojo.UserPoint;
 import com.example.graduate.service.AffairService;
 import com.example.graduate.service.AffairServiceGateway;
+import com.example.graduate.service.UserPointServiceGateway;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
@@ -22,7 +24,8 @@ import java.util.Map;
 public class AffairServiceGatewayImpl implements AffairServiceGateway {
     @Autowired
     private AffairService affairService;
-
+    @Autowired
+    private UserPointServiceGateway userPointServiceGateway;
     @Override
     @AffairLogAnnotation(description = "新建流程",type = LogOperationType.ADD)
     public DTO addAffair(Affair affair) {
@@ -36,7 +39,28 @@ public class AffairServiceGatewayImpl implements AffairServiceGateway {
 
     @Override
     public DTO modAffair(Affair affair) {
-        if(affairService.updateById(affair)){
+        Affair inDb = affairService.getById(affair.getId());
+        if(inDb.getState()==1){
+            return new DTO(RetCodeEnum.FAIL.getCode(),"该流程已结束");
+        }
+        inDb.setOperateUser(PresentUserUtils.qryPresentUserAccount());
+        inDb.setNote(affair.getNote());
+        inDb.setState(affair.getState());
+        inDb.setAffairDetail(affair.getAffairDetail());
+        if(affair.getState()==1){
+            UserPoint userPoint = userPointServiceGateway.getByName(affair.getApplyUser());
+            userPoint.setPoint(userPoint.getPoint()-affair.getAffairDetail());
+            String type=null;
+            if(affair.getAffairType()==1){
+                type = "超期";
+            }else if(affair.getAffairType()==2){
+                type = "申请购书";
+            }else if(affair.getAffairType()==3){
+                type = "遗失";
+            }
+            userPointServiceGateway.modUserPoint(userPoint,"编号"+affair.getId()+type+"事务"+"-"+affair.getAffairDetail()+"分");
+        }
+        if(affairService.updateById(inDb)){
             return new DTO(RetCodeEnum.SUCCEED);
         }
         return new DTO(RetCodeEnum.FAIL);
@@ -54,7 +78,7 @@ public class AffairServiceGatewayImpl implements AffairServiceGateway {
     public PageDTO<Affair> qryAffair(Map<String, Object> params) {
         PageDTO<Affair> pageDTO = new PageDTO<>(RetCodeEnum.SUCCEED);
         int totalRaw = affairService.qryTotalRaw(params);
-        params.put("totalRaw",totalRaw);
+        params.put("totalRow",totalRaw);
         int size = PageUtil.transParam2Page(params,pageDTO);
         int current = StringUtil.objectToInt(params.get("current"));
         Page<Affair> page = new Page<>(current,size);

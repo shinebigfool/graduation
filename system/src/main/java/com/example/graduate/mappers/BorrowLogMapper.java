@@ -23,7 +23,7 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
             "on a.book_id = b.id " +
             "<where>" +
             " <if test = 'name!=null and name!=\"\"'> " +
-            " and a.user_account like concat('%' , #{name,jdbcType=VARCHAR}, '%') " +
+            " and a.user_account = #{name,jdbcType=VARCHAR}" +
             "</if>" +
             " <if test = 'title!=null and title!=\"\"'> " +
             " and a.book_title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
@@ -48,7 +48,7 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
             "select count(1) from borrow_log a left join book b on a.book_id=b.id " +
             "<where> " +
             " <if test = 'name!=null and name!=\"\"'> " +
-            " and a.user_account like concat('%' , #{name,jdbcType=VARCHAR}, '%') " +
+            " and a.user_account = #{name,jdbcType=VARCHAR} " +
             "</if>" +
             " <if test = 'title!=null and title!=\"\"'> " +
             " and a.book_title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
@@ -81,7 +81,7 @@ public interface BorrowLogMapper extends BaseMapper<BorrowLog> {
             "on a.book_id = b.id " +
             "<where>" +
             " <if test = 'name!=null and name!=\"\"'> " +
-            " and a.user_account like concat('%' , #{name,jdbcType=VARCHAR}, '%') " +
+            " and a.user_account = #{name,jdbcType=VARCHAR}" +
             "</if>" +
             " <if test = 'title!=null and title!=\"\"'> " +
             " and a.book_title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +

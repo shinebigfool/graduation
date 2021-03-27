@@ -9,9 +9,7 @@ import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.exception.NxyException;
 import com.example.graduate.mapstruct.BookConverter;
-import com.example.graduate.pojo.Book;
-import com.example.graduate.pojo.BookFavorite;
-import com.example.graduate.pojo.BookFavoriteCount;
+import com.example.graduate.pojo.*;
 import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
@@ -40,6 +38,10 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     @Autowired
     private BorrowLogServiceGateway borrowLogServiceGateway;
 
+    @Autowired
+    private FavoriteHistoryGateway favoriteHistoryGateway;
+    @Autowired
+    private UserPointServiceGateway userPointServiceGateway;
     @Override
     public PageDTO<Book> qryBook(Map<String, Object> params) {
         int examineState = StringUtil.objectToInt(params.get("examineState"));
@@ -80,6 +82,9 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         book.setExamineNote("");
         try {
             bookService.save(book);
+            UserPoint userPoint = userPointServiceGateway.getByName(name);
+            userPoint.setPoint(userPoint.getPoint()+10);
+            userPointServiceGateway.modUserPoint(userPoint,"共享图书"+book.getTitle()+"+10分");
             return new DTO(RetCodeEnum.SUCCEED.getCode(), "新增图书成功，请等待管理员审核");
         } catch (Exception e) {
             throw new NxyException("新增图书失败");
@@ -251,6 +256,16 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         }
         if (isFavorite(book)) {
             return new DTO(RetCodeEnum.SUCCEED.getCode(), "已在收藏夹");
+        }
+        if(!favoriteHistoryGateway.isExists(name,book.getId())){
+            FavoriteHistory favoriteHistory = new FavoriteHistory();
+            favoriteHistory.setBid(book.getId());
+            favoriteHistory.setName(name);
+            favoriteHistoryGateway.add(favoriteHistory);
+            String uploader = book.getUploadPerson();
+            UserPoint userPoint = userPointServiceGateway.getByName(uploader);
+            userPoint.setPoint(userPoint.getPoint()+1);
+            userPointServiceGateway.modUserPoint(userPoint,book.getTitle()+"被收藏+1分");
         }
         BookFavorite favorite = new BookFavorite();
         favorite.setBookId(book.getId());
