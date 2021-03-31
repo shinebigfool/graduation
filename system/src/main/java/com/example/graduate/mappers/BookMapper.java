@@ -17,10 +17,10 @@ public interface BookMapper extends BaseMapper<Book> {
             "from book " +
             "<where> " +
             " <if test = 'title!=null and title!=\"\"'> " +
-            " or title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
+            " and title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'author!=null and author!=\"\"'> " +
-            " or author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
+            " and author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'cid!=null and cid != -1 and cid !=\"\" and cid != 0'> " +
             " and cid = #{cid} " +
@@ -31,11 +31,11 @@ public interface BookMapper extends BaseMapper<Book> {
             " <if test = 'availableState!=null and availableState != -1 and availableState!=\"\"'> " +
             " and available_state = #{availableState} " +
             "</if>" +
-            " <if test = 'examinePerson!=null and author!=\"\"'> " +
+            " <if test = 'examinePerson!=null and examinePerson!=\"\"'> " +
             " and examine_person like concat('%' , #{examinePerson,jdbcType=VARCHAR}, '%') " +
             "</if>" +
-            " <if test = 'uploadPerson!=null and author!=\"\"'> " +
-            " or upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
+            " <if test = 'uploadPerson!=null and uploadPerson!=\"\"'> " +
+            " and upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             "</where>" +
             "</script>")
@@ -45,10 +45,10 @@ public interface BookMapper extends BaseMapper<Book> {
             " select * from book " +
             "<where>" +
             " <if test = 'title!=null and title!=\"\"'> " +
-            " or title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
+            " and title like concat('%' , #{title,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'author!=null and author!=\"\"'> " +
-            " or author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
+            " and author like concat('%' , #{author,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'cid!=null and cid != -1 and cid != 0 and cid !=\"\"'> " +
             " and cid = #{cid} " +
@@ -63,7 +63,7 @@ public interface BookMapper extends BaseMapper<Book> {
             " and examine_person like concat('%' , #{examinePerson,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             " <if test = 'uploadPerson!=null and uploadPerson!=\"\"'> " +
-            " or upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
+            " and upload_person like concat('%' , #{uploadPerson,jdbcType=VARCHAR}, '%') " +
             "</if>" +
             "</where>" +
             "</script>")

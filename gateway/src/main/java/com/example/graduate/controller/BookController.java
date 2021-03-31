@@ -10,6 +10,7 @@ import com.example.graduate.cache.RuleCache;
 import com.example.graduate.codeEnum.LogOperationType;
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.config.GroovyDynamicLoader;
+import com.example.graduate.domain.BookDO;
 import com.example.graduate.dto.BookDTO;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
@@ -84,7 +85,22 @@ public class BookController {
         return bookServiceGateway.qryBook(params);
     }
 
-
+    @GetMapping("/myBook")
+    @ApiOperation(value = "分页查询我的图书")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "current", value = "当前页面", required = true, paramType = "query"),
+            @ApiImplicitParam(name = "size", value = "页面大小", required = true, paramType = "query"),
+            @ApiImplicitParam(name = "title", value = "标题", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "author", value = "作者", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "cid", value = "种类ID", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "examineState", value = "审核状态", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "availableState", value = "可用状态", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "examinePerson", value = "审核人", required = false, paramType = "query"),
+            @ApiImplicitParam(name = "uploadPerson", value = "上传者", required = false, paramType = "query")
+    })
+    PageDTO<BookDO> qryMyBook(@ApiIgnore @RequestParam Map<String,Object> params){
+        return bookServiceGateway.qryMyBook(params);
+    }
     @GetMapping("/book")
     @ApiOperation(value = "精确查单个图书")
     @ApiImplicitParam(name = "id",value = "图书id",required = true,paramType = "query")

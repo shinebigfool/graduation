@@ -294,7 +294,10 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
         if (rids.size() == 0) {
             return 4;
         }
-        if (rids.contains(1) || rids.contains(2) || rids.contains(10)) {
+        if(rids.contains(1) || rids.contains(2)){
+            return 5;
+        }
+        if (rids.contains(10)) {
             return 2;
         } else if (rids.contains(9)) {
             return 1;

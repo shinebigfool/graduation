@@ -3,6 +3,7 @@ package com.example.graduate.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
+import com.example.graduate.domain.BookDO;
 import com.example.graduate.dto.BookDTO;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class BookServiceGatewayImpl implements BookServiceGateway {
@@ -42,6 +42,8 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     private FavoriteHistoryGateway favoriteHistoryGateway;
     @Autowired
     private UserPointServiceGateway userPointServiceGateway;
+    @Autowired
+    private FavoriteHistoryService favoriteHistoryService;
     @Override
     public PageDTO<Book> qryBook(Map<String, Object> params) {
         int examineState = StringUtil.objectToInt(params.get("examineState"));
@@ -66,6 +68,36 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
             return new PageDTO<>(RetCodeEnum.RESULT_EMPTY);
         }
         pageDTO.setRetList(books);
+        return pageDTO;
+    }
+
+    @Override
+    public PageDTO<BookDO> qryMyBook(Map<String, Object> params) {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        params.put("uploadPerson",name);
+        int examineState = StringUtil.objectToInt(params.get("examineState"));
+        int availableState = StringUtil.objectToInt(params.get("availableState"));
+        PageDTO<BookDO> pageDTO = new PageDTO<>(RetCodeEnum.SUCCEED);
+        // 查询符合条件的书的总数
+        int totalRow = bookService.qryTotalRow(params);
+        params.put("totalRow", totalRow);
+        int size = PageUtil.transParam2Page(params, pageDTO);
+        int current = StringUtil.objectToInt(params.get("current"));
+        // 分页
+        Page<Book> bookPage = new Page<>(current, size);
+        String title = StringUtil.parseString(params.get("title"));
+        String author = StringUtil.parseString(params.get("author"));
+        int cid = StringUtil.objectToInt(params.get("cid"));
+
+        String examinePerson = StringUtil.parseString(params.get("examinePerson"));
+        String uploadPerson = StringUtil.parseString(params.get("uploadPerson"));
+        List<Book> books = bookService.qryBookByPage(bookPage, title, author, cid, examineState,
+                availableState, examinePerson, uploadPerson);
+        List<BookDO> list = BookConverter.INSTANCE.po2do(books);
+        for (BookDO bookDO : list) {
+            processBookDO(bookDO);
+        }
+        pageDTO.setRetList(list);
         return pageDTO;
     }
 
@@ -331,5 +363,24 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         return dto;
     }
 
+    @Override
+    public int qryFavoriteNum(int bid) {
+        LambdaQueryWrapper<FavoriteHistory> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(FavoriteHistory::getBid,bid);
+        return favoriteHistoryService.count(wrapper);
+    }
+
+    @Override
+    public int borrowNum(int bid) {
+        LambdaQueryWrapper<BorrowLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BorrowLog::getBookId,bid);
+        return borrowLogService.count(wrapper);
+    }
+
+    private void processBookDO(BookDO bookDO){
+        bookDO.setFavoriteNum(qryFavoriteNum(bookDO.getId()));
+        bookDO.setReadNum(borrowNum(bookDO.getId()));
+        bookDO.setAviPoint(bookDO.getFavoriteNum()+bookDO.getReadNum()*5);
+    }
 
 }
