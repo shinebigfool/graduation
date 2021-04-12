@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.domain.BookDO;
-import com.example.graduate.dto.BookDTO;
-import com.example.graduate.dto.DTO;
-import com.example.graduate.dto.ListDTO;
-import com.example.graduate.dto.PageDTO;
+import com.example.graduate.dto.*;
 import com.example.graduate.exception.NxyException;
 import com.example.graduate.mapstruct.BookConverter;
 import com.example.graduate.pojo.*;
@@ -17,7 +14,11 @@ import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -44,6 +45,11 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
     private UserPointServiceGateway userPointServiceGateway;
     @Autowired
     private FavoriteHistoryService favoriteHistoryService;
+    @Autowired
+    private UserServiceGateway userServiceGateway;
+    @Autowired
+    @Lazy
+    private AffairServiceGateway affairServiceGateway;
     @Override
     public PageDTO<Book> qryBook(Map<String, Object> params) {
         int examineState = StringUtil.objectToInt(params.get("examineState"));
@@ -119,6 +125,7 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
             userPointServiceGateway.modUserPoint(userPoint,"共享图书"+book.getTitle()+"+10分");
             return new DTO(RetCodeEnum.SUCCEED.getCode(), "新增图书成功，请等待管理员审核");
         } catch (Exception e) {
+            System.out.println(e);
             throw new NxyException("新增图书失败");
         }
 
@@ -375,6 +382,59 @@ public class BookServiceGatewayImpl implements BookServiceGateway {
         LambdaQueryWrapper<BorrowLog> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(BorrowLog::getBookId,bid);
         return borrowLogService.count(wrapper);
+    }
+
+    @Override
+    public DTO gift(Book book) {
+        Book inDb = bookService.getById(book.getId());
+        UserDTO userDTO = userServiceGateway.qryUserByName(book.getUploadPerson());
+        if (!userDTO.getRetCode().equals("000000")){
+            return new DTO(RetCodeEnum.FAIL.getCode(),"查无此人");
+        }
+        inDb.setUploadPerson(book.getUploadPerson());
+        bookService.updateById(book);
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, timeout = 36000, rollbackFor = Exception.class)
+    public DTO lossBook(int bid) {
+        String name = PresentUserUtils.qryPresentUserAccount();
+        Book byId = bookService.getById(bid);
+        // 图书下架
+        byId.setAvailableState(3);
+        // 新建遗失事务
+        Affair affair = new Affair();
+        affair.setAffairDetail(20);
+        affair.setNote("遗失"+byId.getTitle());
+        affair.setAffairType(3);
+        affair.setBookInfo(byId.getTitle());
+        affair.setBid(bid);
+        // 更新借书日志
+        BorrowLog borrowLog = borrowLogServiceGateway.qryCurrLog(bid, name);
+        borrowLog.setState(1);
+        borrowLog.setReturnDate(new Date());
+        borrowLogService.updateById(borrowLog);
+        affairServiceGateway.addAffair(affair);
+        bookService.updateById(byId);
+        return new DTO(RetCodeEnum.SUCCEED);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, timeout = 36000, rollbackFor = Exception.class)
+    public DTO brokenBook(Affair affair) {
+        // 新建损坏事务
+        Affair inDB = new Affair();
+        inDB.setAffairType(4);
+        inDB.setBid(affair.getBid());
+        inDB.setAffairDetail(10);
+        inDB.setNote("损坏"+affair.getBookInfo());
+        inDB.setBookInfo(affair.getBookInfo());
+        inDB.setBrokenPic(affair.getBrokenPic());
+        affairServiceGateway.addAffair(inDB);
+        // 正常还书
+        borrowLogServiceGateway.returnBook(affair.getBid(),PresentUserUtils.qryPresentUserAccount());
+        return new DTO(RetCodeEnum.SUCCEED);
     }
 
     private void processBookDO(BookDO bookDO){

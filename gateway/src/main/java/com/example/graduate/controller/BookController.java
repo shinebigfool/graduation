@@ -16,6 +16,7 @@ import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.exception.NxyException;
+import com.example.graduate.pojo.Affair;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavoriteCount;
 import com.example.graduate.pojo.CalculateRule;
@@ -212,6 +213,21 @@ public class BookController {
     @ApiOperation(value = "收藏榜")
     ListDTO<BookFavoriteCount> favoriteCount(){
         return bookServiceGateway.favoriteCount();
+    }
+
+    @PutMapping("/gift")
+    DTO gift(@RequestBody Book book){
+        return bookServiceGateway.gift(book);
+    }
+
+    @PostMapping("/loss")
+    DTO lossBook(@RequestBody Book book){
+        return bookServiceGateway.lossBook(book.getId());
+    }
+
+    @PostMapping("/broken")
+    DTO brokenBook(@RequestBody Affair affair){
+        return bookServiceGateway.brokenBook(affair);
     }
     @GetMapping("/testEngine")
     @ApiIgnore

@@ -23,4 +23,6 @@ public interface BorrowLogServiceGateway {
     Boolean isInHand(int bid,String userAccount);
 
     ListDTO<BookLendCount> lendCount();
+
+    BorrowLog qryCurrLog(int bid,String name);
 }

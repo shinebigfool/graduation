@@ -7,9 +7,11 @@ import com.example.graduate.codeEnum.RetCodeEnum;
 import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.pojo.Affair;
+import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.UserPoint;
 import com.example.graduate.service.AffairService;
 import com.example.graduate.service.AffairServiceGateway;
+import com.example.graduate.service.BookService;
 import com.example.graduate.service.UserPointServiceGateway;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
@@ -26,6 +28,8 @@ public class AffairServiceGatewayImpl implements AffairServiceGateway {
     private AffairService affairService;
     @Autowired
     private UserPointServiceGateway userPointServiceGateway;
+    @Autowired
+    private BookService bookService;
     @Override
     @AffairLogAnnotation(description = "新建流程",type = LogOperationType.ADD)
     public DTO addAffair(Affair affair) {
@@ -57,6 +61,10 @@ public class AffairServiceGatewayImpl implements AffairServiceGateway {
                 type = "申请购书";
             }else if(affair.getAffairType()==3){
                 type = "遗失";
+                doLoss(affair);
+            }else if(affair.getAffairType()==4){
+                type = "损坏";
+                doBroken(affair);
             }
             userPointServiceGateway.modUserPoint(userPoint,"编号"+affair.getId()+type+"事务"+"-"+affair.getAffairDetail()+"分");
         }
@@ -86,5 +94,18 @@ public class AffairServiceGatewayImpl implements AffairServiceGateway {
         List<Affair> affairs = affairService.qryAffairByPage(page,id);
         pageDTO.setRetList(affairs);
         return pageDTO;
+    }
+
+    private void doLoss(Affair affair){
+        Book byId = bookService.getById(affair.getBid());
+        UserPoint byName = userPointServiceGateway.getByName(byId.getUploadPerson());
+        byName.setPoint(byName.getPoint()+affair.getAffairDetail());
+        userPointServiceGateway.modUserPoint(byName,"图书"+affair.getBookInfo()+"被遗失，补偿+"+affair.getAffairDetail()+"分");
+    }
+    private void doBroken(Affair affair){
+        Book byId = bookService.getById(affair.getBid());
+        UserPoint byName = userPointServiceGateway.getByName(byId.getUploadPerson());
+        byName.setPoint(byName.getPoint()+affair.getAffairDetail());
+        userPointServiceGateway.modUserPoint(byName,"图书"+affair.getBookInfo()+"被损坏，补偿+"+affair.getAffairDetail()+"分");
     }
 }

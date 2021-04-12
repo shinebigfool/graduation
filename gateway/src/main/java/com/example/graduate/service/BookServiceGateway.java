@@ -6,6 +6,7 @@ import com.example.graduate.dto.DTO;
 import com.example.graduate.dto.ListDTO;
 import com.example.graduate.dto.PageDTO;
 import com.example.graduate.exception.NxyException;
+import com.example.graduate.pojo.Affair;
 import com.example.graduate.pojo.Book;
 import com.example.graduate.pojo.BookFavoriteCount;
 
@@ -28,4 +29,7 @@ public interface BookServiceGateway {
     ListDTO<BookFavoriteCount> favoriteCount();
     int qryFavoriteNum(int bid);
     int borrowNum(int bid);
+    DTO gift(Book book);
+    DTO lossBook(int bid);
+    DTO brokenBook(Affair affair);
 }

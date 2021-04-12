@@ -9,6 +9,7 @@ import com.example.graduate.mapstruct.UserConverter;
 import com.example.graduate.pojo.AdminRole;
 import com.example.graduate.pojo.AdminUserRole;
 import com.example.graduate.pojo.User;
+import com.example.graduate.pojo.UserPoint;
 import com.example.graduate.service.*;
 import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
@@ -40,6 +41,8 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
     private AdminRoleService adminRoleService;
     @Autowired
     private SchoolClassService schoolClassService;
+    @Autowired
+    private UserPointServiceGateway userPointServiceGateway;
     Calendar now = Calendar.getInstance();
     Calendar birthday = Calendar.getInstance();
 
@@ -213,7 +216,10 @@ public class UserServiceGatewayImpl implements UserServiceGateway {
             temp.setUid(user.getId());
             adminUserRoleService.save(temp);
         }
-
+        UserPoint userPoint = new UserPoint();
+        userPoint.setPoint(50);
+        userPoint.setName(user.getName());
+        userPointServiceGateway.addUserPoint(userPoint, "系统初始化赠送+50分");
         return new DTO(RetCodeEnum.SUCCEED);
     }
 

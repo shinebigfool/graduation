@@ -19,6 +19,8 @@ public class Affair {
     private Integer affairDetail;
     private String bookInfo;
     private Integer state;
+    private Integer bid;
+    private String brokenPic;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date openTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

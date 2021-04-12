@@ -5,7 +5,7 @@ import com.example.graduate.dto.ObjectDTO;
 import com.example.graduate.pojo.UserPoint;
 
 public interface UserPointServiceGateway {
-    DTO addUserPoint(UserPoint userPoint);
+    DTO addUserPoint(UserPoint userPoint, String note);
     DTO modUserPoint(UserPoint userPoint,String note);
     DTO del(int id);
     UserPoint getByName(String name);

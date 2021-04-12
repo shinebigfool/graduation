@@ -11,6 +11,7 @@ import com.example.graduate.utils.PageUtil;
 import com.example.graduate.utils.PresentUserUtils;
 import com.example.graduate.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,6 +33,7 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     @Autowired
     private BookFavoriteService bookFavoriteService;
     @Autowired
+    @Lazy
     private BookServiceGateway bookServiceGateway;
     @Autowired
     private UserPointServiceGateway userPointServiceGateway;
@@ -75,25 +77,12 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, timeout = 36000, rollbackFor = Exception.class)
     public DTO returnBook(int bid,String name) {
-        if(PresentUserUtils.qryPresentUserAccount().equals("")){
-            return new DTO(RetCodeEnum.FORBIDDEN.getCode(),"请先登录");
-        }
-        if(StringUtil.isBlank(name)){
-            name = PresentUserUtils.qryPresentUserAccount();
-        }
         //查找借书记录并检查是否有错
-        LambdaQueryWrapper<BorrowLog> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BorrowLog::getState,2).eq(BorrowLog::getUserAccount,name).eq(BorrowLog::getBookId,bid);
-        List<BorrowLog> borrowLogs = borrowLogService.list(wrapper);
-        if (borrowLogs.size()!=1){
-
-            return new DTO(RetCodeEnum.FAIL.getCode(),"您当前有"+borrowLogs.size()+"条对应借书记录" +
-                    "请联系管理员进行处理");
-        }
-
-
         //更新借书状态
-        BorrowLog log = borrowLogs.get(0);
+        BorrowLog log = qryCurrLog(bid,name);
+        if(log==null){
+            return new DTO(RetCodeEnum.EXCEPTION.getCode(),"数据库异常，请联系管理员");
+        }
         int totalTime = (int) ((new Date().getTime()-log.getBorrowDate().getTime())/86400000);
         if(totalTime>20){
             Affair affair = new Affair();
@@ -222,5 +211,23 @@ public class BorrowLogServiceGatewayImpl implements BorrowLogServiceGateway {
         ListDTO<BookLendCount> dto = new ListDTO<>(RetCodeEnum.SUCCEED);
         dto.setRetList(borrowLogService.lendCount());
         return dto;
+    }
+
+    @Override
+    public BorrowLog qryCurrLog(int bid, String name) {
+        if(PresentUserUtils.qryPresentUserAccount().equals("")){
+            return null;
+        }
+        if(StringUtil.isBlank(name)){
+            name = PresentUserUtils.qryPresentUserAccount();
+        }
+        //查找借书记录并检查是否有错
+        LambdaQueryWrapper<BorrowLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BorrowLog::getState,2).eq(BorrowLog::getUserAccount,name).eq(BorrowLog::getBookId,bid);
+        List<BorrowLog> borrowLogs = borrowLogService.list(wrapper);
+        if (borrowLogs.size()!=1){
+            return null;
+        }
+        return borrowLogs.get(0);
     }
 }

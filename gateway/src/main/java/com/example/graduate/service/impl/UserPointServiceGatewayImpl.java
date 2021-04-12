@@ -19,7 +19,8 @@ public class UserPointServiceGatewayImpl implements UserPointServiceGateway {
     @Autowired
     private UserPointService userPointService;
     @Override
-    public DTO addUserPoint(UserPoint userPoint) {
+    @PointLogAnnotation(note = "新增关联记录")
+    public DTO addUserPoint(UserPoint userPoint, String note) {
         if(userPointService.save(userPoint)){
             return new DTO(RetCodeEnum.SUCCEED);
         }
